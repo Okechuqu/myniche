@@ -1,14 +1,21 @@
-import NicheForm from "@/components/NicheForm";
+import PublicNavbar from "@/components/layout/public-navbar";
+import Hero from "@/components/marketing/hero";
+import FeatureGrid from "@/components/marketing/feature-grid";
+import PricingPreview from "@/components/marketing/pricing-preview";
+import Footer from "@/components/marketing/footer";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <main className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-4xl">
-        <h1 className="text-4xl font-extrabold text-center text-white mb-8 tracking-tight">
-          Creator Suite <span className="text-indigo-500"></span>
-        </h1>
-        <NicheForm />
-      </div>
+    <main className="min-h-screen bg-slate-950 text-white">
+      <PublicNavbar />
+
+      <Hero />
+
+      <FeatureGrid />
+
+      <PricingPreview />
+
+      <Footer />
     </main>
   );
 }
