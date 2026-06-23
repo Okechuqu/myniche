@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { isAxiosError } from "axios";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLogin } from "@/features/auth/hooks/use-login";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
@@ -10,13 +11,13 @@ import { useForm } from "react-hook-form";
 import FacebookButton from "@/components/auth/facebook-button";
 import GoogleButton from "@/components/auth/google-button";
 
-const getErrorMessage = (error: any) => {
+const getErrorMessage = (error: unknown) => {
   if (!error) return "Login failed";
 
-  if (error?.response?.data) {
+  if (isAxiosError(error) && error.response?.data) {
     const data = error.response.data;
     if (typeof data === "string") return data;
-    if (typeof data === "object") {
+    if (typeof data === "object" && data !== null) {
       return Object.entries(data)
         .map(([key, value]) =>
           Array.isArray(value)
@@ -27,7 +28,11 @@ const getErrorMessage = (error: any) => {
     }
   }
 
-  return error?.message || "Login failed";
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "Login failed";
 };
 
 export default function LoginPage() {
@@ -35,12 +40,18 @@ export default function LoginPage() {
   const [apiError, setApiError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const { mutate, isPending, error } = useLogin({
+  const { mutate, isPending } = useLogin({
     onSuccess: () => {
       setSuccessMessage("Welcome back! Redirecting you to your dashboard.");
       window.setTimeout(() => {
-        router.replace("/dashboard");
+        router.replace("/");
       }, 500);
+    },
+    onError: (error) => {
+      setApiError(getErrorMessage(error));
+      window.setTimeout(() => {
+        setApiError(null);
+      }, 5000);
     },
   });
 
@@ -55,19 +66,6 @@ export default function LoginPage() {
       password: "",
     },
   });
-
-  useEffect(() => {
-    if (!error) {
-      return;
-    }
-
-    setApiError(getErrorMessage(error));
-    const timer = window.setTimeout(() => {
-      setApiError(null);
-    }, 5000);
-
-    return () => window.clearTimeout(timer);
-  }, [error]);
 
   const onSubmit = (values: LoginInput) => {
     setApiError(null);
@@ -112,9 +110,17 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm text-slate-300">
-                Password
-              </label>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <label className="block text-sm text-slate-300">
+                  Password
+                </label>
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-pink-400 hover:text-pink-300"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <input
                 type="password"
                 className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none ring-0 focus:border-pink-500"

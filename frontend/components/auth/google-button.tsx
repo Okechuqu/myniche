@@ -36,13 +36,20 @@ export default function GoogleButton() {
     const handleCredentialResponse = async (response: any) => {
       if (!response?.credential) return;
 
-      const auth = await googleLogin({ token: response.credential });
-      setSession({
-        access: auth.access,
-        refresh: auth.refresh,
-        user: auth.user,
-      });
-      router.push("/dashboard");
+      try {
+        const auth = await googleLogin({ token: response.credential });
+        setSession({
+          access: auth.access,
+          refresh: auth.refresh,
+          user: auth.user,
+        });
+        router.push("/");
+      } catch (error: any) {
+        if (error.response) {
+          console.error("Server Error Details:", error.response.data);
+        }
+        console.error("Google login failed:", error);
+      }
     };
 
     const initializeGoogle = () => {
@@ -79,6 +86,10 @@ export default function GoogleButton() {
 
   const handleClick = () => {
     const win = window as GoogleWindow;
+    if (!win.google?.accounts?.id) {
+      console.error("Google script not yet loaded");
+      return;
+    }
     win.google?.accounts?.id?.prompt();
   };
 

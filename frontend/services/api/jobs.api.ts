@@ -23,7 +23,7 @@ export const getJob = async (jobId: number) => {
     result: {
       content?: string;
     } | null;
-    error_message: string;
+    error: string;
     created_at: string;
   };
 };

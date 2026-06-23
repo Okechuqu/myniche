@@ -14,12 +14,18 @@ type FbWindow = Window & {
       xfbml: boolean;
       version: string;
     }) => void;
+    getLoginStatus: (
+      callback: (response: any) => void,
+      force?: boolean,
+    ) => void;
     login: (
       callback: (response: any) => void,
       options?: { scope: string },
     ) => void;
   };
 };
+
+const APP_ID = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID ?? "";
 
 export default function FacebookButton() {
   const router = useRouter();
@@ -28,53 +34,70 @@ export default function FacebookButton() {
 
   useEffect(() => {
     const win = window as FbWindow;
-
-    if (win.FB) {
-      setReady(true);
+    if (!APP_ID) {
+      console.error(
+        "Facebook App ID is missing. Check your environment variables.",
+      );
       return;
     }
 
-    win.fbAsyncInit = function () {
-      win.FB.init({
-        appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID ?? "",
-        cookie: true,
-        xfbml: false,
-        version: "v19.0",
-      });
+    const initFB = () => {
+      if (!win.FB) return;
 
+      // Ensure FB.init is called only once using a global flag
+      if (!(win as any).__myniche_fb_initialized) {
+        win.FB.init({
+          appId: APP_ID,
+          cookie: true,
+          xfbml: false,
+          version: "v19.0",
+        });
+        (win as any).__myniche_fb_initialized = true;
+      }
       setReady(true);
     };
+
+    // SDK already loaded — init directly (handles client-side navigation)
+    if (win.FB) {
+      initFB();
+      return;
+    }
+
+    // First load — set up fbAsyncInit then inject script
+    if ((win as any).__myniche_fb_loading) return;
+    (win as any).__myniche_fb_loading = true;
+    win.fbAsyncInit = initFB;
 
     const script = document.createElement("script");
     script.src = "https://connect.facebook.net/en_US/sdk.js";
     script.async = true;
     script.defer = true;
     document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
   }, []);
 
   const handleLogin = () => {
     const win = window as FbWindow;
-    if (!win.FB) return;
+    if (!win.FB || !ready) return;
 
     win.FB.login(
-      async (response: any) => {
+      (response: any) => {
         if (!response?.authResponse) return;
 
-        const res = await facebookLogin({
-          token: response.authResponse.accessToken,
-        });
-
-        setSession({
-          access: res.access,
-          refresh: res.refresh,
-          user: res.user,
-        });
-
-        router.push("/dashboard");
+        (async () => {
+          try {
+            const res = await facebookLogin({
+              token: response.authResponse.accessToken,
+            });
+            setSession({
+              access: res.access,
+              refresh: res.refresh,
+              user: res.user,
+            });
+            router.push("/");
+          } catch (error) {
+            console.error("Facebook login failed:", error);
+          }
+        })();
       },
       { scope: "email" },
     );

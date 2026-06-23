@@ -5,46 +5,23 @@ from decouple import config
 from .base import BaseAIProvider
 
 
-class GeminiProvider(
-    BaseAIProvider
-):
-
+class GeminiProvider(BaseAIProvider):
     def __init__(self):
-
-        genai.configure(
-            api_key=config(
-                "GEMINI_API_KEY"
-            )
+        self.client = genai.Client(
+            api_key=config("GEMINI_API_KEY")
         )
+        self.model = "gemini-2.5-flash"
 
-        self.model = (
-            genai.GenerativeModel(
-                "gemini-2.5-flash"
-            )
+    def generate_script(self, prompt: str):
+        response = self.client.models.generate_content(
+            model=self.model,
+            contents=prompt,
         )
-
-    def generate_script(
-        self,
-        prompt: str
-    ):
-
-        response = (
-            self.model.generate_content(
-                prompt
-            )
-        )
-
         return response.text
 
-    def generate_plan(
-        self,
-        prompt: str
-    ):
-
-        response = (
-            self.model.generate_content(
-                prompt
-            )
+    def generate_plan(self, prompt: str):
+        response = self.client.models.generate_content(
+            model=self.model,
+            contents=prompt,
         )
-
         return response.text

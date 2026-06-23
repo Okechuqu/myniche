@@ -1,6 +1,7 @@
 "use client";
 
 import DashboardLayout from "@/components/layout/dashboard-layout";
+import MyNicheEmptyState from "@/components/shared/myniche-empty-state";
 import { useScripts } from "@/features/scripts/hooks/use-scripts";
 
 export default function ScriptHistoryPage() {
@@ -25,22 +26,30 @@ export default function ScriptHistoryPage() {
         </div>
       )}
 
-      <div className="space-y-4">
-        {data?.map((script) => (
-          <div
-            key={script.id}
-            className="rounded-xl border border-slate-800 bg-slate-900 p-5"
-          >
-            <h2 className="text-lg font-semibold">{script.title}</h2>
-            <p className="mt-1 text-sm text-slate-400">
-              {script.niche} , {script.platform}
-            </p>
-            <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-200">
-              {script.content}
-            </p>
-          </div>
-        ))}
-      </div>
+      {!isLoading && !isError && data?.length === 0 && (
+        <MyNicheEmptyState
+          description="Generated scripts will appear here once you create and save your first piece."
+        />
+      )}
+
+      {data && data.length > 0 && (
+        <div className="space-y-4">
+          {data.map((script) => (
+            <div
+              key={script.id}
+              className="rounded-lg border border-slate-800 bg-slate-900 p-5"
+            >
+              <h2 className="text-lg font-semibold">{script.title}</h2>
+              <p className="mt-1 text-sm text-slate-400">
+                {script.niche} , {script.platform}
+              </p>
+              <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-200">
+                {script.content}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
     </DashboardLayout>
   );
 }

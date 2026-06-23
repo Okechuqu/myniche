@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-from decouple import config
+from decouple import Config, RepositoryEnv, config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,6 +25,30 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 GEMINI_API_KEY = config('GEMINI_API_KEY', default=None)
+GOOGLE_CLIENT_ID = config(
+    "GOOGLE_CLIENT_ID",
+    default=config("NEXT_PUBLIC_GOOGLE_CLIENT_ID", default=""),
+)
+FRONTEND_URL = config(
+    "FRONTEND_URL",
+    default="http://localhost:3000",
+).rstrip("/")
+DEFAULT_FROM_EMAIL = config(
+    "DEFAULT_FROM_EMAIL",
+    default="noreply@myniche.local",
+)
+EMAIL_BACKEND = config(
+    "EMAIL_BACKEND",
+    default="django.core.mail.backends.console.EmailBackend",
+)
+
+if not GOOGLE_CLIENT_ID:
+    FRONTEND_ENV_FILE = BASE_DIR.parent.parent / "frontend" / ".env"
+    if FRONTEND_ENV_FILE.exists():
+        GOOGLE_CLIENT_ID = Config(
+            RepositoryEnv(str(FRONTEND_ENV_FILE))
+        )("NEXT_PUBLIC_GOOGLE_CLIENT_ID", default="")
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False)
 
@@ -41,6 +65,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
     'corsheaders',
     "rest_framework",

@@ -1,5 +1,6 @@
 "use client";
 
+import { isAxiosError } from "axios";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import {
@@ -12,11 +13,13 @@ import { useAuthStore } from "@/store/auth.store";
 
 type UseRegisterOptions = {
   onSuccess?: (data: AuthResponse) => void;
+  onError?: (error: unknown) => void;
   redirectOnSuccess?: boolean;
 };
 
 export const useRegister = ({
   onSuccess,
+  onError,
   redirectOnSuccess = true,
 }: UseRegisterOptions = {}) => {
   const router = useRouter();
@@ -30,14 +33,12 @@ export const useRegister = ({
         password: payload.password,
       });
     },
-    onError: (error: any) => {
-      // Log full error for easier debugging in browser console
-      // React Query will surface this as the `error` value to the caller
-      // eslint-disable-next-line no-console
+    onError: (error: unknown) => {
       console.error("Register mutation error:", error);
-      if (error?.response?.data) {
+      if (isAxiosError(error) && error.response?.data) {
         console.error("Register response body:", error.response.data);
       }
+      onError?.(error);
     },
     onSuccess: (data: AuthResponse) => {
       setSession({
@@ -64,15 +65,17 @@ export type LoginPayload = {
 
 type UseLoginOptions = {
   onSuccess?: (data: AuthResponse) => void;
+  onError?: (error: unknown) => void;
 };
 
-export const useLogin = ({ onSuccess }: UseLoginOptions = {}) => {
+export const useLogin = ({ onSuccess, onError }: UseLoginOptions = {}) => {
   const setSession = useAuthStore((s) => s.setSession);
 
   return useMutation({
     mutationFn: async (payload: LoginPayload) => {
       return await login(payload);
     },
+    onError,
     onSuccess: (data: AuthResponse) => {
       setSession({
         access: data.access,

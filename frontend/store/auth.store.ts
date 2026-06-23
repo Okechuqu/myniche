@@ -11,6 +11,7 @@ export interface AuthUser {
   provider: string;
   plan_name: string;
   script_quota: number;
+  has_usable_password: boolean;
   created_at?: string;
 }
 

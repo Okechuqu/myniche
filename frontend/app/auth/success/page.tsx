@@ -14,7 +14,7 @@ function AuthSuccessContent() {
 
     if (access) {
       setTokens(access, refresh ?? "");
-      router.replace("/dashboard");
+      router.replace("/");
     } else {
       // If no tokens, go to login
       router.replace("/login");

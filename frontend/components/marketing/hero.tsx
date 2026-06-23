@@ -1,6 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { useAuthStore } from "@/store/auth.store";
 
 export default function Hero() {
+  const user = useAuthStore((state) => state.user);
+
   return (
     <section className="px-6 py-24">
       <div className="mx-auto max-w-5xl text-center">
@@ -21,18 +26,20 @@ export default function Hero() {
 
         <div className="mt-10 flex flex-wrap justify-center gap-4">
           <Link
-            href="/demo"
-            className="rounded-xl bg-gradient-to-r from-pink-500 via-purple-500 to-orange-500 px-8 py-4 font-semibold"
+            href={user ? "/dashboard" : "/demo"}
+            className="rounded-xl bg-linear-to-r from-pink-500 via-purple-500 to-orange-500 px-8 py-4 font-semibold"
           >
-            Try Free
+            {user ? "Get Started" : "Try Free"}
           </Link>
 
-          <Link
-            href="/register"
-            className="rounded-xl border border-slate-700 px-8 py-4"
-          >
-            Create Account
-          </Link>
+          {!user && (
+            <Link
+              href="/register"
+              className="rounded-xl border border-slate-700 px-8 py-4"
+            >
+              Create Account
+            </Link>
+          )}
         </div>
       </div>
     </section>

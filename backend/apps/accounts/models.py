@@ -10,6 +10,12 @@ class User(AbstractUser):
     avatar = models.URLField(blank=True)
 
     provider = models.CharField(max_length=50, default="email")
+    google_sub = models.CharField(
+        max_length=255,
+        unique=True,
+        null=True,
+        blank=True,
+    )
     plan_name = models.CharField(max_length=50, default="free")
     script_quota = models.PositiveIntegerField(default=20)
 

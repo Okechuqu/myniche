@@ -9,11 +9,12 @@ export default function Footer() {
           <p className="mt-2 text-slate-400">The creator operating system.</p>
         </div>
 
-        <div className="flex gap-8">
+        <div className="flex flex-wrap gap-6 text-sm text-slate-300">
           <Link href="/features">Features</Link>
           <Link href="/tools">Tools</Link>
           <Link href="/pricing">Pricing</Link>
           <Link href="/resources">Resources</Link>
+          <Link href="/privacy">Privacy</Link>
         </div>
       </div>
     </footer>
