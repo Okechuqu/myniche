@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+from urllib.parse import urlparse
 from decouple import Config, RepositoryEnv, config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -127,16 +128,30 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('POSTGRES_DB', default='myniche'),
-        'USER': config('POSTGRES_USER', default='myniche'),
-        'PASSWORD': config('POSTGRES_PASSWORD', default='myniche'),
-        'HOST': config('POSTGRES_HOST', default='db'),
-        'PORT': config('POSTGRES_PORT', default='5432'),
+DATABASE_URL = config('DATABASE_URL', default='')
+if DATABASE_URL:
+    parsed = urlparse(DATABASE_URL)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': parsed.path.lstrip('/'),
+            'USER': parsed.username,
+            'PASSWORD': parsed.password,
+            'HOST': parsed.hostname,
+            'PORT': parsed.port or '5432',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('POSTGRES_DB', default='myniche'),
+            'USER': config('POSTGRES_USER', default='myniche'),
+            'PASSWORD': config('POSTGRES_PASSWORD', default='myniche'),
+            'HOST': config('POSTGRES_HOST', default='db'),
+            'PORT': config('POSTGRES_PORT', default='5432'),
+        }
+    }
 
 AUTH_USER_MODEL = "accounts.User"
 SITE_ID = 1
