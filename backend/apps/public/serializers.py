@@ -27,6 +27,8 @@ class SiteConfigurationSerializer(serializers.ModelSerializer):
             "id",
             "site_name",
             "site_description",
+            "contact_email",
+            "contact_phone",
             "favicon_url",
             "seo_title",
             "seo_description",

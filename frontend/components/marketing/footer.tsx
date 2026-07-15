@@ -1,6 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import {
+  getSiteConfiguration,
+  SiteConfiguration,
+} from "@/services/api/public.api";
 import { ArrowRight, Bot, Cpu, RadioTower, Sparkles } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
 
@@ -58,6 +63,19 @@ export default function Footer({
   const access = useAuthStore((state) => state.access);
   const isAuthenticated = Boolean(user || access);
   const ctaHref = isAuthenticated ? "/dashboard" : "/register";
+  const [siteConfig, setSiteConfig] = useState<SiteConfiguration | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    getSiteConfiguration()
+      .then((data) => {
+        if (mounted) setSiteConfig(data as SiteConfiguration);
+      })
+      .catch(() => {});
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <footer className="relative overflow-hidden bg-[var(--background)] px-4 py-12 text-[var(--foreground)] sm:px-6 sm:py-16">
@@ -157,6 +175,14 @@ export default function Footer({
               © {new Date().getFullYear()} MyNiche. Crafted for ambitious
               creators.
             </p>
+          </div>
+          <div className="ml-4 flex flex-col text-xs">
+            <span>
+              Email: {siteConfig?.contact_email ?? "support@myniche.example"}
+            </span>
+            <span>
+              Phone: {siteConfig?.contact_phone ?? "+1 (555) 123-4567"}
+            </span>
           </div>
           <p className="uppercase">Content systems online</p>
         </div>

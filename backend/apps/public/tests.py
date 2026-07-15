@@ -24,10 +24,13 @@ class SiteConfigurationViewTests(TestCase):
             site_name="Old Name",
             site_description="Old description",
         )
-        SiteConfiguration.objects.create(
+        new_config = SiteConfiguration.objects.create(
             site_name="New Name",
             site_description="New description",
         )
+        new_config.contact_email = "test@example.com"
+        new_config.contact_phone = "+1-800-555-0000"
+        new_config.save()
 
         response = self.client.get("/api/public/config/")
 
@@ -35,6 +38,9 @@ class SiteConfigurationViewTests(TestCase):
         self.assertEqual(response.json()["site_name"], "New Name")
         self.assertEqual(
             response.json()["site_description"], "New description")
+        # ensure contact fields are returned in the API
+        self.assertIn("contact_email", response.json())
+        self.assertIn("contact_phone", response.json())
 
 
 class SiteContentApiTests(TestCase):

@@ -5,6 +5,8 @@ from django.utils.text import slugify
 class SiteConfiguration(models.Model):
     site_name = models.CharField(max_length=255, default="MyNiche")
     site_description = models.TextField(blank=True)
+    contact_email = models.EmailField(blank=True)
+    contact_phone = models.CharField(max_length=50, blank=True)
     favicon_url = models.URLField(blank=True)
     seo_title = models.CharField(max_length=255, blank=True)
     seo_description = models.TextField(blank=True)

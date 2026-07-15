@@ -19,5 +19,11 @@ RUN poetry config virtualenvs.create false \
     && poetry install --no-root --no-interaction --no-ansi
 
 COPY . /app/
+ENV DJANGO_SETTINGS_MODULE=core.settings.production
 
+# Add entrypoint that will run migrations and collectstatic before starting
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["gunicorn", "core.wsgi:application", "-c", "gunicorn.conf.py"]

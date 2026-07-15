@@ -4,6 +4,8 @@ export interface SiteConfiguration {
   id: number;
   site_name: string;
   site_description: string;
+  contact_email?: string;
+  contact_phone?: string;
   favicon_url: string;
   seo_title: string;
   seo_description: string;
