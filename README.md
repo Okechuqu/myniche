@@ -17,6 +17,7 @@ MyNiche is an AI-assisted content creation platform combining planning, script g
 ## Quick start (local development)
 
 Prerequisites:
+
 - Docker & Docker Compose (recommended)
 - Poetry (backend) or Python 3.12+ and pip
 - Node 18+ and pnpm

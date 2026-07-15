@@ -5,7 +5,8 @@ from .models import SiteConfiguration, SiteContent
 
 @admin.register(SiteConfiguration)
 class SiteConfigurationAdmin(admin.ModelAdmin):
-    list_display = ("site_name", "seo_title", "contact_email", "contact_phone", "updated_at")
+    list_display = ("site_name", "seo_title", "contact_email",
+                    "contact_phone", "updated_at")
     readonly_fields = ("updated_at",)
     actions = None
 
