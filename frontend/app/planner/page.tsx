@@ -7,7 +7,7 @@ export default function PlannerPage() {
   return (
     <DashboardLayout>
       <h1 className="text-3xl font-bold">Weekly Planner</h1>
-      <p className="mt-2 text-slate-400">
+      <p className="theme-muted mt-2">
         Keep the content plan visible and simple.
       </p>
 

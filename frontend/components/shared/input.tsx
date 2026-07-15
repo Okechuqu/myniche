@@ -17,7 +17,7 @@ export default function Input({
 }: Props) {
   return (
     <div className="space-y-2">
-      <label className="text-sm text-gray-400">{label}</label>
+      <label className="theme-muted text-sm">{label}</label>
 
       <input
         type={type}
@@ -29,9 +29,8 @@ export default function Input({
           px-4
           py-3
           rounded-lg
-          bg-slate-900
+          theme-input
           border
-          border-slate-700
           outline-none
         "
       />

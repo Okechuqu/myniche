@@ -12,6 +12,8 @@ class CreateScriptJobSerializer(
 
     tone = serializers.CharField()
 
+    count = serializers.IntegerField(default=2, min_value=1, max_value=5)
+
 
 class JobSerializer(
     serializers.Serializer

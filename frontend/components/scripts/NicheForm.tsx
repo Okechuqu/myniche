@@ -48,9 +48,11 @@ export default function NicheForm({
     format: "short_form",
     tone: "casual",
     topic: "",
+    count: 2,
   });
   const [loading, setLoading] = useState(false);
-  const [generatedScript, setGeneratedScript] = useState("");
+  const [generatedScripts, setGeneratedScripts] = useState<string[]>([]);
+  const [copiedMessage, setCopiedMessage] = useState("");
   const [error, setError] = useState("");
   const [jobId, setJobId] = useState<number | null>(null);
   const queryClient = useQueryClient();
@@ -76,7 +78,7 @@ export default function NicheForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(mode === "demo");
-    setGeneratedScript("");
+    setGeneratedScripts([]);
     setError("");
     setJobId(null);
 
@@ -86,6 +88,7 @@ export default function NicheForm({
         platform: selectedPlatform,
         topic: formData.topic,
         tone: formData.tone,
+        count: formData.count,
       };
 
       if (mode === "demo") {
@@ -108,7 +111,7 @@ export default function NicheForm({
         }
 
         const data = await response.json();
-        setGeneratedScript(data.script || "");
+        setGeneratedScripts([data.script || ""]);
         setLoading(false);
         return;
       }
@@ -142,6 +145,7 @@ export default function NicheForm({
     if (status === "completed") {
       queryClient.invalidateQueries({ queryKey: ["scripts"] });
       queryClient.invalidateQueries({ queryKey: ["analytics-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["planner-current"] });
     }
   }, [jobQuery.data?.status, queryClient]);
 
@@ -154,26 +158,37 @@ export default function NicheForm({
     jobStatus === "failed"
       ? jobQuery.data?.error || "Script generation failed."
       : "";
-  const outputScript =
-    generatedScript ||
-    (jobStatus === "completed" ? (jobQuery.data?.result?.content ?? "") : "");
+  const outputScripts =
+    generatedScripts.length > 0
+      ? generatedScripts
+      : jobStatus === "completed"
+        ? (jobQuery.data?.result?.scripts?.map(
+            (item: { content: string }) => item.content,
+          ) ??
+          (jobQuery.data?.result?.content
+            ? [jobQuery.data.result.content]
+            : []))
+        : [];
+  const showVariantSelector = mode !== "demo";
 
   return (
-    <div className="mx-auto max-w-5xl rounded-lg border border-slate-800 bg-slate-900 p-5 text-slate-100 shadow-xl sm:p-6">
+    <div className="theme-surface theme-elevated mx-auto max-w-5xl rounded-lg border p-5 sm:p-6">
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-slate-700 bg-slate-950 text-pink-300">
+        <div className="theme-icon-tile flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[var(--border)]">
           <FileText size={20} />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-white">{title}</h2>
-          <p className="mt-1 text-sm text-slate-400">{description}</p>
+          <h2 className="text-2xl font-bold text-[var(--foreground)]">
+            {title}
+          </h2>
+          <p className="theme-muted mt-1 text-sm">{description}</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-6">
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-300">
+            <label className="mb-2 block text-sm font-medium text-[var(--foreground)]">
               Creator niche
             </label>
             <input
@@ -182,7 +197,7 @@ export default function NicheForm({
               placeholder="Tech tutorials, personal finance"
               value={formData.niche}
               onChange={handleChange}
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none transition focus:border-pink-500"
+              className="theme-input w-full rounded-lg border px-4 py-3 outline-none transition"
               required
             />
           </div>
@@ -190,7 +205,7 @@ export default function NicheForm({
           <div>
             <label
               htmlFor="tone"
-              className="mb-2 block text-sm font-medium text-slate-300"
+              className="mb-2 block text-sm font-medium text-[var(--foreground)]"
             >
               Script tone
             </label>
@@ -199,7 +214,7 @@ export default function NicheForm({
               name="tone"
               value={formData.tone}
               onChange={handleChange}
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none transition focus:border-pink-500"
+              className="theme-input w-full rounded-lg border px-4 py-3 outline-none transition"
             >
               <option value="casual">Casual and friendly</option>
               <option value="authoritative">Authoritative and expert</option>
@@ -210,7 +225,7 @@ export default function NicheForm({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-300">
+          <label className="mb-2 block text-sm font-medium text-[var(--foreground)]">
             Content format
           </label>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -224,16 +239,16 @@ export default function NicheForm({
                   onClick={() => setFormData({ ...formData, format: value })}
                   className={`flex min-h-20 items-center gap-3 rounded-lg border p-4 text-left transition ${
                     active
-                      ? "border-pink-400 bg-pink-500/10 text-white"
-                      : "border-slate-700 bg-slate-950 text-slate-300 hover:border-slate-500"
+                      ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--foreground)]"
+                      : "theme-action-secondary"
                   }`}
                 >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-700 bg-slate-900">
+                  <span className="theme-icon-tile flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--border)]">
                     <Icon size={18} />
                   </span>
                   <span>
                     <span className="block text-sm font-semibold">{label}</span>
-                    <span className="mt-1 block text-xs text-slate-400">
+                    <span className="theme-muted mt-1 block text-xs">
                       {copy}
                     </span>
                   </span>
@@ -243,8 +258,36 @@ export default function NicheForm({
           </div>
         </div>
 
+        {showVariantSelector && (
+          <div>
+            <label className="mb-2 block text-sm font-medium text-[var(--foreground)]">
+              Script variants
+            </label>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {[1, 2].map((count) => {
+                const active = formData.count === count;
+
+                return (
+                  <button
+                    key={count}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, count })}
+                    className={`rounded-lg border px-4 py-3 text-sm font-medium transition ${
+                      active
+                        ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--foreground)]"
+                        : "theme-action-secondary"
+                    }`}
+                  >
+                    {count} script{count > 1 ? "s" : ""}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-300">
+          <label className="mb-2 block text-sm font-medium text-[var(--foreground)]">
             What is the video about?
           </label>
           <textarea
@@ -253,19 +296,19 @@ export default function NicheForm({
             placeholder="3 hidden VS Code extensions that speed up coding"
             value={formData.topic}
             onChange={handleChange}
-            className="w-full resize-y rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none transition focus:border-pink-500"
+            className="theme-input w-full resize-y rounded-lg border px-4 py-3 outline-none transition"
             required
           />
         </div>
 
         {(error || jobError) && (
-          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
+          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-500">
             {error || jobError}
           </div>
         )}
 
         {jobStatus && jobStatus !== "completed" && jobStatus !== "failed" && (
-          <div className="rounded-lg border border-slate-700 bg-slate-950 p-3 text-sm text-slate-300">
+          <div className="theme-surface-soft rounded-lg border p-3 text-sm">
             Job status: {jobStatus}.
           </div>
         )}
@@ -273,7 +316,7 @@ export default function NicheForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-linear-to-r from-pink-500 via-purple-500 to-orange-500 px-6 py-4 font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-linear-to-r from-[#d4af37] via-[#3b82f6] to-[#05070b] px-6 py-4 font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSubmitting && <Loader2 size={18} className="animate-spin" />}
           {isSubmitting
@@ -282,12 +325,51 @@ export default function NicheForm({
         </button>
       </form>
 
-      {outputScript && (
-        <div className="mt-8 rounded-lg border border-slate-800 bg-slate-950 p-5 text-sm leading-6 text-slate-200">
-          <h3 className="mb-4 text-lg font-bold text-white">
-            Your generated script
+      {outputScripts.length > 0 && (
+        <div className="theme-surface-soft mt-8 rounded-lg border p-5 text-sm leading-6">
+          <h3 className="mb-4 text-lg font-bold text-[var(--foreground)]">
+            Your generated script{outputScripts.length > 1 ? "s" : ""}
           </h3>
-          <pre className="whitespace-pre-wrap font-mono">{outputScript}</pre>
+          <div className="space-y-6">
+            {outputScripts.map((script, index) => (
+              <div key={index} className="theme-surface rounded-xl border p-4">
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-[var(--foreground)]">
+                      Script {index + 1}
+                    </p>
+                    <p className="theme-muted text-xs">
+                      {outputScripts.length > 1
+                        ? `Variant ${index + 1}`
+                        : "Generated script"}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(script);
+                        setCopiedMessage(
+                          "Copied, paste into your teleprompoter",
+                        );
+                        window.setTimeout(() => setCopiedMessage(""), 3000);
+                      } catch {
+                        setCopiedMessage("Unable to copy");
+                        window.setTimeout(() => setCopiedMessage(""), 3000);
+                      }
+                    }}
+                    className="theme-action-secondary inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <pre className="whitespace-pre-wrap font-mono">{script}</pre>
+              </div>
+            ))}
+            {copiedMessage && (
+              <div className="theme-muted text-xs">{copiedMessage}</div>
+            )}
+          </div>
         </div>
       )}
     </div>

@@ -40,6 +40,7 @@ class AuthTests(APITestCase):
                 "email": "test@example.com",
                 "username": "tester",
                 "password": "password123",
+                "agreed_to_privacy": True,
             },
             format="json",
         )

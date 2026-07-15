@@ -61,6 +61,16 @@ class PlannedContent(models.Model):
         blank=True
     )
 
+    generated_title = models.CharField(
+        max_length=255,
+        blank=True,
+    )
+
+    generated_variant = models.CharField(
+        max_length=100,
+        blank=True,
+    )
+
     created_at = models.DateTimeField(
         auto_now_add=True
     )

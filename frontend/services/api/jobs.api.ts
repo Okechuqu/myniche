@@ -5,6 +5,18 @@ export interface CreateScriptJobPayload {
   platform: string;
   topic: string;
   tone: string;
+  count?: number;
+}
+
+export interface JobDetails {
+  id: number;
+  status: "pending" | "processing" | "completed" | "failed";
+  result: {
+    content?: string;
+    scripts?: Array<{ content: string }>;
+  } | null;
+  error: string;
+  created_at: string;
 }
 
 export const createScriptJob = async (payload: CreateScriptJobPayload) => {
@@ -17,13 +29,5 @@ export const createScriptJob = async (payload: CreateScriptJobPayload) => {
 
 export const getJob = async (jobId: number) => {
   const response = await api.get(`/jobs/${jobId}/`);
-  return response.data as {
-    id: number;
-    status: "pending" | "processing" | "completed" | "failed";
-    result: {
-      content?: string;
-    } | null;
-    error: string;
-    created_at: string;
-  };
+  return response.data as JobDetails;
 };

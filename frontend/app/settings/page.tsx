@@ -5,6 +5,7 @@ import DashboardLayout from "@/components/layout/dashboard-layout";
 import { useAuthStore } from "@/store/auth.store";
 import {
   changePassword,
+  deleteAccount,
   requestPasswordReset,
 } from "@/services/api/auth.api";
 import {
@@ -15,6 +16,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Loader2, Trash2 } from "lucide-react";
+import { clearTokens } from "@/lib/auth";
 
 const getErrorMessage = (error: unknown) => {
   if (isAxiosError(error) && error.response?.data) {
@@ -43,6 +47,7 @@ const getErrorMessage = (error: unknown) => {
 };
 
 export default function SettingsPage() {
+  const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
   const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
@@ -52,6 +57,9 @@ export default function SettingsPage() {
   const [resetUrl, setResetUrl] = useState<string | null>(null);
   const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false);
   const [isResetSubmitting, setIsResetSubmitting] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const requiresCurrentPassword = user?.has_usable_password ?? true;
 
   const {
@@ -122,26 +130,51 @@ export default function SettingsPage() {
     }
   };
 
+  const onDeleteAccount = async () => {
+    if (deleteConfirm !== "DELETE") {
+      setDeleteError("Type DELETE to confirm account deletion.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Delete your MyNiche account and all related workspace data? This cannot be undone.",
+    );
+
+    if (!confirmed) return;
+
+    setDeleteError(null);
+    setIsDeletingAccount(true);
+
+    try {
+      await deleteAccount();
+      clearTokens();
+      router.replace("/");
+    } catch (error) {
+      setDeleteError(getErrorMessage(error));
+      setIsDeletingAccount(false);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="max-w-3xl">
         <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="mt-2 text-slate-400">
+        <p className="theme-muted mt-2">
           Manage account security and workspace preferences.
         </p>
 
         <div className="mt-6 space-y-4">
-          <section className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+          <section className="theme-surface rounded-xl border p-5">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h2 className="font-semibold">Password</h2>
-                <p className="mt-2 text-sm text-slate-400">
+                <p className="theme-muted mt-2 text-sm">
                   {requiresCurrentPassword
                     ? "Change your existing account password."
                     : "Add a password so you can sign in with email too."}
                 </p>
               </div>
-              <div className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-300">
+              <div className="theme-subtle rounded-full border px-3 py-1 text-xs">
                 {requiresCurrentPassword ? "Password enabled" : "Social login"}
               </div>
             </div>
@@ -152,12 +185,12 @@ export default function SettingsPage() {
             >
               {requiresCurrentPassword && (
                 <div>
-                  <label className="mb-2 block text-sm text-slate-300">
+                  <label className="mb-2 block text-sm text-[var(--foreground)]">
                     Current password
                   </label>
                   <input
                     type="password"
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none ring-0 focus:border-pink-500"
+                    className="theme-input w-full rounded-lg border px-4 py-3 outline-none ring-0"
                     {...register("currentPassword")}
                   />
                   {errors.currentPassword && (
@@ -170,12 +203,12 @@ export default function SettingsPage() {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm text-slate-300">
+                  <label className="mb-2 block text-sm text-[var(--foreground)]">
                     New password
                   </label>
                   <input
                     type="password"
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none ring-0 focus:border-pink-500"
+                    className="theme-input w-full rounded-lg border px-4 py-3 outline-none ring-0"
                     {...register("newPassword")}
                   />
                   {errors.newPassword && (
@@ -186,12 +219,12 @@ export default function SettingsPage() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm text-slate-300">
+                  <label className="mb-2 block text-sm text-[var(--foreground)]">
                     Confirm password
                   </label>
                   <input
                     type="password"
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none ring-0 focus:border-pink-500"
+                    className="theme-input w-full rounded-lg border px-4 py-3 outline-none ring-0"
                     {...register("confirmPassword")}
                   />
                   {errors.confirmPassword && (
@@ -203,13 +236,13 @@ export default function SettingsPage() {
               </div>
 
               {passwordError && (
-                <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200 shadow-sm">
+                <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-500 shadow-sm">
                   {passwordError}
                 </div>
               )}
 
               {passwordMessage && (
-                <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-200 shadow-sm">
+                <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-600 shadow-sm">
                   {passwordMessage}
                 </div>
               )}
@@ -217,7 +250,7 @@ export default function SettingsPage() {
               <button
                 type="submit"
                 disabled={isPasswordSubmitting}
-                className="rounded-lg bg-linear-to-r from-pink-500 via-purple-500 to-orange-500 px-4 py-3 font-medium disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-lg bg-linear-to-r from-[#d4af37] via-[#3b82f6] to-[#05070b] px-4 py-3 font-medium disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isPasswordSubmitting
                   ? "Saving..."
@@ -228,9 +261,9 @@ export default function SettingsPage() {
             </form>
           </section>
 
-          <section className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+          <section className="theme-surface rounded-xl border p-5">
             <h2 className="font-semibold">Password reset</h2>
-            <p className="mt-2 text-sm text-slate-400">
+            <p className="theme-muted mt-2 text-sm">
               Send a reset link to {user?.email ?? "your account email"}.
             </p>
 
@@ -239,7 +272,7 @@ export default function SettingsPage() {
                 type="button"
                 onClick={onResetRequest}
                 disabled={isResetSubmitting}
-                className="rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-100 transition hover:border-slate-500 hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+                className="theme-action-secondary rounded-lg border px-4 py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isResetSubmitting ? "Sending..." : "Email reset link"}
               </button>
@@ -247,7 +280,7 @@ export default function SettingsPage() {
               {resetUrl && (
                 <Link
                   href={resetUrl}
-                  className="rounded-lg border border-pink-400/30 bg-pink-500/10 px-4 py-3 text-sm text-pink-200 hover:border-pink-300"
+                  className="rounded-lg border border-[var(--accent)]/30 bg-[var(--accent-soft)] px-4 py-3 text-sm text-[var(--accent)] hover:border-[var(--accent)]"
                 >
                   Open reset link
                 </Link>
@@ -255,40 +288,85 @@ export default function SettingsPage() {
             </div>
 
             {resetError && (
-              <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200 shadow-sm">
+              <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-500 shadow-sm">
                 {resetError}
               </div>
             )}
 
             {resetMessage && (
-              <div className="mt-4 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-200 shadow-sm">
+              <div className="mt-4 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-600 shadow-sm">
                 {resetMessage}
               </div>
             )}
           </section>
 
-          <section className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+          <section className="theme-surface rounded-xl border p-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="font-semibold">Profile</h2>
-                <p className="mt-2 text-sm text-slate-400">
+                <p className="theme-muted mt-2 text-sm">
                   Update username, niche, and creator goal.
                 </p>
               </div>
               <Link
                 href="/profile"
-                className="rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-center text-sm text-slate-100 transition hover:border-slate-500 hover:bg-slate-900"
+                className="theme-action-secondary rounded-lg border px-4 py-3 text-center text-sm transition"
               >
                 Edit profile
               </Link>
             </div>
           </section>
 
-          <section className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+          <section className="theme-surface rounded-xl border p-5">
             <h2 className="font-semibold">Subscription</h2>
-            <p className="mt-2 text-sm text-slate-400">
+            <p className="theme-muted mt-2 text-sm">
               Free, Creator, and Agency plans later.
             </p>
+          </section>
+
+          <section className="rounded-xl border border-red-500/30 bg-red-500/10 p-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h2 className="font-semibold text-red-500">Delete account</h2>
+                <p className="mt-2 text-sm text-red-500/80">
+                  Permanently remove your account, scripts, planner data, and
+                  workspace history.
+                </p>
+              </div>
+              <Trash2 size={20} className="hidden text-red-500 sm:block" />
+            </div>
+
+            <div className="mt-5 space-y-3">
+              <label className="block text-sm font-medium text-red-500">
+                Type DELETE to confirm
+              </label>
+              <input
+                value={deleteConfirm}
+                onChange={(event) => setDeleteConfirm(event.target.value)}
+                className="theme-input w-full rounded-lg border px-4 py-3 outline-none ring-0"
+                disabled={isDeletingAccount}
+              />
+
+              {deleteError && (
+                <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-500">
+                  {deleteError}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={onDeleteAccount}
+                disabled={deleteConfirm !== "DELETE" || isDeletingAccount}
+                className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isDeletingAccount ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Trash2 size={16} />
+                )}
+                {isDeletingAccount ? "Deleting..." : "Delete account"}
+              </button>
+            </div>
           </section>
         </div>
       </div>

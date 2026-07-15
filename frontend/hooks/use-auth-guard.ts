@@ -22,8 +22,8 @@ export const useAuthGuard = () => {
   }, [access, isHydrated, router]);
 
   useEffect(() => {
-    if (isError) {
+    if (isError && !access) {
       router.replace("/login");
     }
-  }, [isError, router]);
+  }, [access, isError, router]);
 };

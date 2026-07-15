@@ -1,18 +1,196 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0f172a;
-  --foreground: #ffffff;
+  color-scheme: dark;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #f7f3e8;
+  background-color: #05070b;
+  background-image: radial-gradient(circle at top, rgba(212, 175, 55, 0.14), transparent 28%), radial-gradient(circle at 80% 15%, rgba(59, 130, 246, 0.12), transparent 24%), radial-gradient(circle at 50% 92%, rgba(5, 7, 11, 0.2), transparent 20%);
+  --background: #05070b;
+  --foreground: #f7f3e8;
+  --surface: rgba(14, 18, 25, 0.94);
+  --surface-soft: rgba(18, 24, 33, 0.84);
+  --surface-strong: rgba(8, 10, 15, 0.98);
+  --border: rgba(212, 175, 55, 0.18);
+  --text-muted: #9aa4b2;
+  --accent: #d4af37;
+  --accent-soft: rgba(212, 175, 55, 0.16);
+  --accent-secondary: #3b82f6;
+  --accent-secondary-soft: rgba(59, 130, 246, 0.14);
+  --overlay: rgba(2, 4, 8, 0.8);
+  --shadow: 0 30px 80px rgba(0, 0, 0, 0.38);
+}
 
-  --card: #111827;
+.dark {
+  color-scheme: dark;
+  color: #f7f3e8;
+  background-color: #05070b;
+  background-image: radial-gradient(circle at top, rgba(212, 175, 55, 0.14), transparent 28%), radial-gradient(circle at 80% 15%, rgba(59, 130, 246, 0.12), transparent 24%), radial-gradient(circle at 50% 92%, rgba(5, 7, 11, 0.2), transparent 20%);
+  --background: #05070b;
+  --foreground: #f7f3e8;
+  --surface: rgba(14, 18, 25, 0.94);
+  --surface-soft: rgba(18, 24, 33, 0.84);
+  --surface-strong: rgba(8, 10, 15, 0.98);
+  --border: rgba(212, 175, 55, 0.18);
+  --text-muted: #9aa4b2;
+  --accent: #d4af37;
+  --accent-soft: rgba(212, 175, 55, 0.16);
+  --accent-secondary: #3b82f6;
+  --accent-secondary-soft: rgba(59, 130, 246, 0.14);
+  --overlay: rgba(2, 4, 8, 0.8);
+  --shadow: 0 30px 80px rgba(0, 0, 0, 0.38);
+}
 
-  --pink: #e1306c;
-  --purple: #833ab4;
-  --orange: #f77737;
-  --yellow: #fcaf45;
+.light {
+  color-scheme: light;
+  color: #0b0c0f;
+  background-color: #f6f2e8;
+  background-image: radial-gradient(circle at top, rgba(212, 175, 55, 0.1), transparent 28%), radial-gradient(circle at 80% 15%, rgba(59, 130, 246, 0.08), transparent 24%), radial-gradient(circle at 50% 92%, rgba(5, 7, 11, 0.08), transparent 20%);
+  --background: #f6f2e8;
+  --foreground: #0b0c0f;
+  --surface: rgba(255, 251, 242, 0.96);
+  --surface-soft: rgba(248, 244, 233, 0.96);
+  --surface-strong: rgba(239, 232, 213, 0.98);
+  --border: rgba(184, 138, 0, 0.24);
+  --text-muted: #5f6470;
+  --accent: #b88a00;
+  --accent-soft: rgba(184, 138, 0, 0.14);
+  --accent-secondary: #2563eb;
+  --accent-secondary-soft: rgba(37, 99, 235, 0.12);
+  --overlay: rgba(8, 10, 15, 0.2);
+  --shadow: 0 30px 80px rgba(0, 0, 0, 0.08);
+}
+
+.theme-surface {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+}
+
+.theme-surface-soft {
+  border-color: var(--border);
+  background: var(--surface-soft);
+  color: var(--foreground);
+}
+
+.theme-surface-strong {
+  border-color: var(--border);
+  background: var(--surface-strong);
+  color: var(--foreground);
+}
+
+.theme-elevated {
+  box-shadow: var(--shadow);
+}
+
+.theme-muted {
+  color: var(--text-muted);
+}
+
+.theme-subtle {
+  color: var(--text-muted);
+  background: var(--surface-soft);
+  border-color: var(--border);
+}
+
+.theme-action-secondary {
+  border-color: var(--border);
+  background: var(--surface-soft);
+  color: var(--foreground);
+}
+
+.theme-action-secondary:hover {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+
+.theme-input {
+  border-color: var(--border);
+  background: var(--surface-soft);
+  color: var(--foreground);
+}
+
+.theme-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.78;
+}
+
+.theme-input:focus {
+  border-color: var(--accent-secondary);
+}
+
+.theme-accent-border {
+  border-color: rgba(212, 175, 55, 0.28);
+}
+
+.theme-icon-tile {
+  background: var(--surface-strong);
+  color: var(--accent);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
+  margin: 0;
+  min-height: 100vh;
   color: var(--foreground);
+  background: var(--background);
+  font-family: inherit;
+  text-rendering: optimizeLegibility;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  background: rgba(212, 175, 55, 0.24);
+  color: #fff;
+}
+
+.light ::selection {
+  background: rgba(212, 175, 55, 0.2);
+  color: #0b0c0f;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.92);
+}
+
+.light ::-webkit-scrollbar-track {
+  background: rgba(241, 245, 249, 0.95);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.38);
+  border-radius: 9999px;
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.5);
+  border-radius: 9999px;
+}
+
+::marker {
+  color: var(--accent);
 }

@@ -1,14 +1,41 @@
 "use client";
 
+import { isAxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRegister } from "@/features/auth/hooks/use-login";
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Home } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import FacebookButton from "@/components/auth/facebook-button";
 import GoogleButton from "@/components/auth/google-button";
+import PrivacyCheckbox from "./PrivacyCheckbox";
+
+const getErrorMessage = (error: unknown) => {
+  if (!error) return null;
+
+  if (isAxiosError(error) && error.response?.data) {
+    const data = error.response.data;
+
+    if (typeof data === "string") return data;
+
+    if (typeof data === "object" && data !== null) {
+      return Object.entries(data)
+        .map(([key, value]) =>
+          Array.isArray(value)
+            ? `${key}: ${value.join(", ")}`
+            : `${key}: ${String(value)}`,
+        )
+        .join(" \n");
+    }
+  }
+
+  if (error instanceof Error) return error.message;
+
+  return "Registration failed";
+};
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -44,24 +71,7 @@ export default function RegisterPage() {
   const confirmPasswordValue = watch("confirmPassword", "");
   const passwordsMismatch =
     confirmPasswordValue.length > 0 && passwordValue !== confirmPasswordValue;
-
-  const getErrorMessage = (error: any) => {
-    if (!error) return null;
-    if (error?.response?.data) {
-      const data = error.response.data;
-      if (typeof data === "string") return data;
-      if (typeof data === "object") {
-        return Object.entries(data)
-          .map(([key, value]) =>
-            Array.isArray(value)
-              ? `${key}: ${value.join(", ")}`
-              : `${key}: ${value}`,
-          )
-          .join(" \n");
-      }
-    }
-    return error?.message || "Registration failed";
-  };
+  const [privacyChecked, setPrivacyChecked] = useState(false);
 
   useEffect(() => {
     const errorMessage = getErrorMessage(error);
@@ -78,19 +88,35 @@ export default function RegisterPage() {
   }, [error]);
 
   const onSubmit = (values: RegisterInput) => {
-    const { confirmPassword, ...payload } = values;
+    if (!privacyChecked) {
+      setApiError("You must agree to the privacy policy before registering.");
+      return;
+    }
+
     setApiError(null);
-    mutate(payload);
+    mutate({
+      email: values.email,
+      username: values.username,
+      password: values.password,
+      agreed_to_privacy: privacyChecked,
+    });
   };
 
   const registerErrorMessage = apiError;
 
   return (
-    <div className="min-h-screen bg-slate-950 px-6 py-12 text-white">
+    <div className="min-h-screen bg-[var(--background)] px-6 py-12 text-[var(--foreground)]">
       <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-md items-center">
-        <div className="w-full rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-xl">
+        <div className="theme-surface theme-elevated w-full rounded-2xl border p-8">
+          <Link
+            href="/"
+            className="theme-muted mb-6 inline-flex items-center gap-2 text-sm transition hover:text-[var(--foreground)]"
+          >
+            <Home size={16} />
+            Back to home
+          </Link>
           <h1 className="text-3xl font-bold">Create MyNiche account</h1>
-          <p className="mt-2 text-sm text-slate-400">
+          <p className="theme-muted mt-2 text-sm">
             Set up your creator workspace in minutes.
           </p>
 
@@ -100,9 +126,9 @@ export default function RegisterPage() {
           </div>
 
           <div className="relative my-6">
-            <div className="absolute inset-x-0 top-1/2 h-px bg-slate-800" />
-            <div className="relative flex justify-center text-xs text-slate-500">
-              <span className="bg-slate-900 px-3">
+            <div className="absolute inset-x-0 top-1/2 h-px bg-[var(--border)]" />
+            <div className="theme-muted relative flex justify-center text-xs">
+              <span className="bg-[var(--surface)] px-3">
                 or create your account manually
               </span>
             </div>
@@ -110,10 +136,12 @@ export default function RegisterPage() {
 
           <form className="mt-8 space-y-5" onSubmit={handleSubmit(onSubmit)}>
             <div>
-              <label className="mb-2 block text-sm text-slate-300">Email</label>
+              <label className="mb-2 block text-sm text-[var(--foreground)]">
+                Email
+              </label>
               <input
                 type="email"
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none ring-0 focus:border-pink-500"
+                className="theme-input w-full rounded-lg border px-4 py-3 outline-none ring-0"
                 {...register("email")}
               />
               {errors.email && (
@@ -124,12 +152,12 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm text-slate-300">
+              <label className="mb-2 block text-sm text-[var(--foreground)]">
                 Username
               </label>
               <input
                 type="text"
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none ring-0 focus:border-pink-500"
+                className="theme-input w-full rounded-lg border px-4 py-3 outline-none ring-0"
                 {...register("username")}
               />
               {errors.username && (
@@ -140,12 +168,12 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm text-slate-300">
+              <label className="mb-2 block text-sm text-[var(--foreground)]">
                 Password
               </label>
               <input
                 type="password"
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none ring-0 focus:border-pink-500"
+                className="theme-input w-full rounded-lg border px-4 py-3 outline-none ring-0"
                 {...register("password")}
               />
               {errors.password && (
@@ -157,12 +185,12 @@ export default function RegisterPage() {
 
             {passwordValue.length > 0 && (
               <div>
-                <label className="mb-2 block text-sm text-slate-300">
+                <label className="mb-2 block text-sm text-[var(--foreground)]">
                   Confirm password
                 </label>
                 <input
                   type="password"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none ring-0 focus:border-pink-500"
+                  className="theme-input w-full rounded-lg border px-4 py-3 outline-none ring-0"
                   {...register("confirmPassword")}
                 />
                 {errors.confirmPassword && (
@@ -178,14 +206,19 @@ export default function RegisterPage() {
               </div>
             )}
 
+            <PrivacyCheckbox
+              checked={privacyChecked}
+              onChange={setPrivacyChecked}
+            />
+
             {registerErrorMessage && (
-              <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200 shadow-sm">
+              <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-500 shadow-sm">
                 {registerErrorMessage}
               </div>
             )}
 
             {successMessage && (
-              <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-200 shadow-sm">
+              <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-600 shadow-sm">
                 {successMessage}
               </div>
             )}
@@ -193,15 +226,15 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isPending || passwordsMismatch}
-              className="w-full rounded-lg bg-linear-to-r from-pink-500 via-purple-500 to-orange-500 px-4 py-3 font-medium"
+              className="w-full rounded-lg bg-linear-to-r from-[#d4af37] via-[#3b82f6] to-[#05070b] px-4 py-3 font-medium"
             >
               {isPending ? "Creating..." : "Create account"}
             </button>
           </form>
 
-          <p className="mt-6 text-sm text-slate-400">
+          <p className="theme-muted mt-6 text-sm">
             Already registered,{" "}
-            <Link href="/login" className="text-pink-400 hover:text-pink-300">
+            <Link href="/login" className="text-[var(--accent)] hover:text-[var(--accent)]">
               login here
             </Link>
             .

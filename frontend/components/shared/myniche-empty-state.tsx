@@ -8,7 +8,7 @@ export default function MyNicheEmptyState({
   description = "Create your first script or planner item and this space will begin filling with real creator data.",
 }: MyNicheEmptyStateProps) {
   return (
-    <div className="rounded-lg border border-slate-800 bg-slate-900 p-6 text-center">
+    <div className="theme-surface rounded-lg border p-6 text-center">
       <svg
         viewBox="0 0 520 260"
         role="img"
@@ -95,8 +95,10 @@ export default function MyNicheEmptyState({
         </text>
       </svg>
 
-      <h2 className="mt-5 text-xl font-semibold text-white">{title}</h2>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-400">
+      <h2 className="mt-5 text-xl font-semibold text-[var(--foreground)]">
+        {title}
+      </h2>
+      <p className="theme-muted mx-auto mt-2 max-w-md text-sm leading-6">
         {description}
       </p>
     </div>

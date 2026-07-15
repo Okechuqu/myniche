@@ -11,17 +11,26 @@ from .models import User
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    agreed_to_privacy = serializers.BooleanField(write_only=True)
 
     class Meta:
         model = User
-        fields = ("email", "username", "password")
+        fields = ("email", "username", "password", "agreed_to_privacy")
 
     def create(self, validated_data):
+        # Ensure agreement is present and truthy
+        agreed = validated_data.pop("agreed_to_privacy", False)
+        if not agreed:
+            raise serializers.ValidationError({
+                "agreed_to_privacy": "You must accept the privacy policy to register"
+            })
+
         return User.objects.create_user(
             email=validated_data["email"],
             username=validated_data["username"],
             password=validated_data["password"],
             provider="email",
+            agreed_to_privacy=True,
         )
 
 
@@ -40,6 +49,7 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "username",
             "niche",
+            "main_platform",
             "creator_goal",
             "avatar",
             "provider",
@@ -56,10 +66,17 @@ class UserSerializer(serializers.ModelSerializer):
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("username", "niche", "creator_goal", "avatar")
+        fields = (
+            "username",
+            "niche",
+            "main_platform",
+            "creator_goal",
+            "avatar",
+        )
         extra_kwargs = {
             "username": {"required": True},
             "niche": {"required": False, "allow_blank": True},
+            "main_platform": {"required": False, "allow_blank": True},
             "creator_goal": {"required": False, "allow_blank": True},
             "avatar": {"required": False, "allow_blank": True},
         }

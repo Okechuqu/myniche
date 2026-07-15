@@ -7,14 +7,13 @@ export default function StatCard({ title, value }: Props) {
   return (
     <div
       className="
-      bg-slate-900
+      theme-surface
       rounded-xl
       p-6
       border
-      border-slate-800
       "
     >
-      <h3 className="text-slate-400">{title}</h3>
+      <h3 className="theme-muted">{title}</h3>
 
       <p
         className="

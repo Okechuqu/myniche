@@ -6,6 +6,7 @@ export interface AuthUser {
   email: string;
   username: string;
   niche: string;
+  main_platform: string;
   creator_goal: string;
   avatar: string;
   provider: string;
@@ -32,7 +33,7 @@ interface AuthState {
 }
 
 const ACCESS_COOKIE_NAME = "access";
-const ACCESS_COOKIE_MAX_AGE = 60 * 60 * 24;
+const ACCESS_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 
 const setAccessCookie = (access: string) => {
   if (typeof document === "undefined") {
@@ -51,6 +52,40 @@ const clearAccessCookie = () => {
 
   document.cookie = `${ACCESS_COOKIE_NAME}=; Path=/; Max-Age=0; SameSite=Lax`;
 };
+
+const storage = () => {
+  if (typeof window === "undefined") {
+    return {
+      getItem: () => null,
+      setItem: () => {},
+      removeItem: () => {},
+    };
+  }
+
+  return window.localStorage;
+};
+
+const migrateLegacySessionStorage = () => {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    const legacyValue = window.sessionStorage.getItem("myniche-auth");
+    if (!legacyValue) {
+      return;
+    }
+
+    const hasLocalValue = window.localStorage.getItem("myniche-auth");
+    if (!hasLocalValue) {
+      window.localStorage.setItem("myniche-auth", legacyValue);
+    }
+  } catch {
+    // ignore if storage is unavailable
+  }
+};
+
+migrateLegacySessionStorage();
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -99,7 +134,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "myniche-auth",
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(storage),
       partialize: (state) => ({
         access: state.access,
         refresh: state.refresh,

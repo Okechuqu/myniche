@@ -91,3 +91,21 @@ class ListScriptsView(APIView):
         ]
 
         return Response(data)
+
+
+class ScriptDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, script_id):
+        deleted_count, _ = Script.objects.filter(
+            id=script_id,
+            user=request.user,
+        ).delete()
+
+        if deleted_count == 0:
+            return Response(
+                {"detail": "Script not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        return Response(status=status.HTTP_204_NO_CONTENT)

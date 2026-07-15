@@ -39,7 +39,7 @@ export default function ProfileDropdown() {
         type="button"
         className="flex w-full items-center gap-3 rounded-xl border-2 border-slate-700 bg-slate-900 px-3 py-2.5 text-left transition hover:border-slate-600 hover:bg-slate-800"
       >
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border-2 border-pink-500 bg-pink-500/20 text-sm font-bold text-pink-300">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border-2 border-[var(--accent)] bg-[var(--accent-soft)] text-sm font-bold text-[var(--accent)]">
           {initial}
         </span>
         <div className="flex-1 min-w-0">

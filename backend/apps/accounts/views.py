@@ -28,6 +28,10 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
 
+    def create(self, request, *args, **kwargs):
+        # Ensure the agreed_to_privacy is validated at serializer level; forward request
+        return super().create(request, *args, **kwargs)
+
 
 class LoginView(APIView):
 
@@ -88,8 +92,14 @@ class LoginView(APIView):
 
 
 class MeView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         return Response(UserSerializer(request.user).data)
+
+    def delete(self, request):
+        request.user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ProfileUpdateView(APIView):
@@ -228,3 +238,46 @@ class FacebookLoginView(SocialLoginView):
     adapter_class = FacebookOAuth2Adapter
     client_class = OAuth2Client
     permission_classes = [AllowAny]
+
+
+class PlansView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        plans = [
+            {
+                "title": "Free",
+                "price": "0",
+                "description": "Start with a limited creator workspace.",
+                "features": [
+                    "20 scripts / month",
+                    "1 seat (individual)",
+                    "Standard support",
+                    "Basic planner & analytics",
+                ],
+            },
+            {
+                "title": "Creator",
+                "price": "19",
+                "description": "Unlimited scripts, planner, and pro workflows.",
+                "features": [
+                    "Unlimited scripts",
+                    "Up to 5 seats",
+                    "Priority support",
+                    "Advanced planner & workflow automations",
+                ],
+            },
+            {
+                "title": "Agency",
+                "price": "49",
+                "description": "Team collaboration, analytics, and growth tools.",
+                "features": [
+                    "Unlimited scripts & seats",
+                    "Team workspace & roles",
+                    "Advanced analytics",
+                    "White-labeling & SSO",
+                ],
+            },
+        ]
+
+        return Response(plans)

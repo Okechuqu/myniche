@@ -10,6 +10,7 @@ export interface RegisterPayload {
   email: string;
   username: string;
   password: string;
+  agreed_to_privacy?: boolean;
 }
 
 export interface AuthResponse {
@@ -54,6 +55,7 @@ export interface PasswordResetConfirmResponse {
 export interface ProfileUpdatePayload {
   username: string;
   niche?: string;
+  main_platform?: string;
   creator_goal?: string;
   avatar?: string;
 }
@@ -118,4 +120,8 @@ export const confirmPasswordReset = async (
 export const updateProfile = async (payload: ProfileUpdatePayload) => {
   const response = await api.patch<AuthUser>("/accounts/profile/", payload);
   return response.data;
+};
+
+export const deleteAccount = async () => {
+  await api.delete("/accounts/me/");
 };

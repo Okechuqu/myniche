@@ -5,8 +5,16 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
 import { facebookLogin } from "@/services/api/auth.api";
 
+type FacebookLoginResponse = {
+  authResponse?: {
+    accessToken: string;
+  };
+};
+
 type FbWindow = Window & {
   fbAsyncInit?: () => void;
+  __myniche_fb_initialized?: boolean;
+  __myniche_fb_loading?: boolean;
   FB?: {
     init: (options: {
       appId: string;
@@ -15,11 +23,11 @@ type FbWindow = Window & {
       version: string;
     }) => void;
     getLoginStatus: (
-      callback: (response: any) => void,
+      callback: (response: FacebookLoginResponse) => void,
       force?: boolean,
     ) => void;
     login: (
-      callback: (response: any) => void,
+      callback: (response: FacebookLoginResponse) => void,
       options?: { scope: string },
     ) => void;
   };
@@ -45,14 +53,14 @@ export default function FacebookButton() {
       if (!win.FB) return;
 
       // Ensure FB.init is called only once using a global flag
-      if (!(win as any).__myniche_fb_initialized) {
+      if (!win.__myniche_fb_initialized) {
         win.FB.init({
           appId: APP_ID,
           cookie: true,
           xfbml: false,
           version: "v19.0",
         });
-        (win as any).__myniche_fb_initialized = true;
+        win.__myniche_fb_initialized = true;
       }
       setReady(true);
     };
@@ -64,8 +72,8 @@ export default function FacebookButton() {
     }
 
     // First load — set up fbAsyncInit then inject script
-    if ((win as any).__myniche_fb_loading) return;
-    (win as any).__myniche_fb_loading = true;
+    if (win.__myniche_fb_loading) return;
+    win.__myniche_fb_loading = true;
     win.fbAsyncInit = initFB;
 
     const script = document.createElement("script");
@@ -80,13 +88,14 @@ export default function FacebookButton() {
     if (!win.FB || !ready) return;
 
     win.FB.login(
-      (response: any) => {
-        if (!response?.authResponse) return;
+      (response: FacebookLoginResponse) => {
+        const accessToken = response.authResponse?.accessToken;
+        if (!accessToken) return;
 
         (async () => {
           try {
             const res = await facebookLogin({
-              token: response.authResponse.accessToken,
+              token: accessToken,
             });
             setSession({
               access: res.access,
@@ -108,7 +117,7 @@ export default function FacebookButton() {
       type="button"
       onClick={handleLogin}
       disabled={!ready}
-      className="w-full inline-flex items-center justify-center gap-3 rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-100 transition hover:border-slate-500 hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+      className="theme-action-secondary inline-flex w-full items-center justify-center gap-3 rounded-lg border px-4 py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-60"
     >
       <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#1877F2] text-white">
         <svg

@@ -10,7 +10,6 @@ type MeResult = Awaited<ReturnType<typeof me>>;
 export const useMe = (enabled = true) => {
   const access = useAuthStore((state) => state.access);
   const setUser = useAuthStore((state) => state.setUser);
-  const clearSession = useAuthStore((state) => state.clearSession);
 
   const query = useQuery<MeResult, Error>({
     queryKey: ["me"],
@@ -25,12 +24,6 @@ export const useMe = (enabled = true) => {
       setUser(query.data);
     }
   }, [query.data, setUser]);
-
-  useEffect(() => {
-    if (query.isError) {
-      clearSession();
-    }
-  }, [clearSession, query.isError]);
 
   return query;
 };

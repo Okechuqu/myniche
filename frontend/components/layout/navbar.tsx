@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth.store";
 import { clearTokens } from "@/lib/auth";
+import ThemeToggle from "@/components/shared/theme-toggle";
 
 export default function Navbar() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function Navbar() {
 
   return (
     <header className="w-full flex items-center justify-end gap-4 mb-6">
+      <ThemeToggle />
       {hydrated && !access && (
         <div className="flex gap-3">
           <Link
@@ -35,7 +37,7 @@ export default function Navbar() {
 
           <Link
             href="/register"
-            className="px-4 py-2 rounded-lg bg-linear-to-r from-pink-500 via-purple-500 to-orange-500 text-white text-sm"
+            className="px-4 py-2 rounded-lg bg-linear-to-r from-[#d4af37] via-[#3b82f6] to-[#05070b] text-white text-sm"
           >
             Sign Up
           </Link>

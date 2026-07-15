@@ -7,7 +7,7 @@ export default function DemoPage() {
   return (
     <>
       <PublicNavbar />
-      <main className="min-h-[calc(100vh-73px)] bg-slate-950 px-6 py-16 text-white">
+      <main className="min-h-[calc(100vh-73px)] bg-[var(--background)] px-6 py-16 text-[var(--foreground)]">
         <div className="mx-auto max-w-6xl">
           <NicheForm
             mode="demo"

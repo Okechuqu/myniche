@@ -6,6 +6,8 @@ export interface PlannedContentItem {
   topic: string;
   status: string;
   script?: string;
+  generated_title?: string;
+  generated_variant?: string;
 }
 
 export interface ContentPlan {
@@ -23,10 +25,17 @@ export interface ContentPlan {
   items: PlannedContentItem[];
 }
 
-export interface CurrentPlans {
-  weekly: ContentPlan;
-  monthly: ContentPlan;
+export interface MissingNicheResponse {
+  missing_niche: true;
+  message: string;
 }
+
+export type CurrentPlans =
+  | {
+      weekly: ContentPlan;
+      monthly: ContentPlan;
+    }
+  | MissingNicheResponse;
 
 export const getCurrentPlans = async () => {
   const response = await api.get<CurrentPlans>("/planner/current/");

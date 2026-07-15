@@ -72,20 +72,22 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 px-6 py-12 text-white">
+    <div className="min-h-screen bg-[var(--background)] px-6 py-12 text-[var(--foreground)]">
       <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-md items-center">
-        <div className="w-full rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-xl">
+        <div className="theme-surface theme-elevated w-full rounded-2xl border p-8">
           <h1 className="text-3xl font-bold">Reset your password</h1>
-          <p className="mt-2 text-sm text-slate-400">
+          <p className="theme-muted mt-2 text-sm">
             Enter your account email and we will send a reset link.
           </p>
 
           <form className="mt-8 space-y-5" onSubmit={handleSubmit(onSubmit)}>
             <div>
-              <label className="mb-2 block text-sm text-slate-300">Email</label>
+              <label className="mb-2 block text-sm text-[var(--foreground)]">
+                Email
+              </label>
               <input
                 type="email"
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none ring-0 focus:border-pink-500"
+                className="theme-input w-full rounded-lg border px-4 py-3 outline-none ring-0"
                 {...register("email")}
               />
               {errors.email && (
@@ -96,13 +98,13 @@ export default function ForgotPasswordPage() {
             </div>
 
             {apiError && (
-              <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200 shadow-sm">
+              <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-500 shadow-sm">
                 {apiError}
               </div>
             )}
 
             {successMessage && (
-              <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-200 shadow-sm">
+              <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-600 shadow-sm">
                 {successMessage}
               </div>
             )}
@@ -110,7 +112,7 @@ export default function ForgotPasswordPage() {
             {resetUrl && (
               <Link
                 href={resetUrl}
-                className="block rounded-lg border border-pink-400/30 bg-pink-500/10 p-3 text-sm text-pink-200 hover:border-pink-300"
+                className="block rounded-lg border border-[var(--accent)]/30 bg-[var(--accent-soft)] p-3 text-sm text-[var(--accent)] hover:border-[var(--accent)]"
               >
                 Open reset link
               </Link>
@@ -119,15 +121,18 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full rounded-lg bg-linear-to-r from-pink-500 via-purple-500 to-orange-500 px-4 py-3 font-medium disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-lg bg-linear-to-r from-[#d4af37] via-[#3b82f6] to-[#05070b] px-4 py-3 font-medium disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting ? "Sending..." : "Send reset link"}
             </button>
           </form>
 
-          <p className="mt-6 text-sm text-slate-400">
+          <p className="theme-muted mt-6 text-sm">
             Remembered it?{" "}
-            <Link href="/login" className="text-pink-400 hover:text-pink-300">
+            <Link
+              href="/login"
+              className="text-[var(--accent)] hover:text-[var(--accent)]"
+            >
               Back to login
             </Link>
             .

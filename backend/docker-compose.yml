@@ -10,6 +10,9 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    environment:
+      POSTGRES_HOST: db
+      DATABASE_URL: postgres://myniche:myniche@db:5432/myniche
     depends_on:
       - db
       - redis

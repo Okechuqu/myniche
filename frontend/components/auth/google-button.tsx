@@ -1,19 +1,37 @@
 "use client";
 
+import { isAxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
 import { googleLogin } from "@/services/api/auth.api";
 
+type GoogleCredentialResponse = {
+  credential?: string;
+};
+
+type GoogleButtonOptions = {
+  theme?: string;
+  size?: string;
+  text?: string;
+  shape?: string;
+};
+
 type GoogleWindow = Window & {
+  googleInitialized?: boolean;
+  googleScriptLoading?: boolean;
   google?: {
     accounts?: {
       id?: {
         initialize: (options: {
           client_id: string;
-          callback: (response: any) => void;
+          callback: (response: GoogleCredentialResponse) => void;
         }) => void;
-        renderButton: (container: HTMLElement, options: any) => void;
+        renderButton: (
+          container: HTMLElement,
+          options: GoogleButtonOptions,
+        ) => void;
+        prompt: () => void;
       };
     };
   };
@@ -33,7 +51,9 @@ export default function GoogleButton() {
 
     const win = window as GoogleWindow;
 
-    const handleCredentialResponse = async (response: any) => {
+    const handleCredentialResponse = async (
+      response: GoogleCredentialResponse,
+    ) => {
       if (!response?.credential) return;
 
       try {
@@ -44,8 +64,8 @@ export default function GoogleButton() {
           user: auth.user,
         });
         router.push("/");
-      } catch (error: any) {
-        if (error.response) {
+      } catch (error: unknown) {
+        if (isAxiosError(error) && error.response) {
           console.error("Server Error Details:", error.response.data);
         }
         console.error("Google login failed:", error);
@@ -56,12 +76,12 @@ export default function GoogleButton() {
       if (!win.google?.accounts?.id) return;
 
       // Only initialize if not already done
-      if (!(win as any).googleInitialized) {
+      if (!win.googleInitialized) {
         win.google.accounts.id.initialize({
           client_id: clientId,
           callback: handleCredentialResponse,
         });
-        (win as any).googleInitialized = true;
+        win.googleInitialized = true;
       }
 
       setReady(true);
@@ -73,8 +93,8 @@ export default function GoogleButton() {
     }
 
     // Check if script is already loading
-    if ((win as any).googleScriptLoading) return;
-    (win as any).googleScriptLoading = true;
+    if (win.googleScriptLoading) return;
+    win.googleScriptLoading = true;
 
     const script = document.createElement("script");
     script.src = "https://accounts.google.com/gsi/client";
@@ -99,7 +119,7 @@ export default function GoogleButton() {
       onClick={handleClick}
       disabled={!ready}
       id="google-btn"
-      className="w-full inline-flex items-center justify-center gap-3 rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-100 transition hover:border-slate-500 hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+      className="theme-action-secondary inline-flex w-full items-center justify-center gap-3 rounded-lg border px-4 py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-60"
     >
       <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white">
         <svg

@@ -7,5 +7,7 @@ export const useScripts = () => {
   return useQuery({
     queryKey: ["scripts"],
     queryFn: listScripts,
+    refetchOnWindowFocus: true,
+    staleTime: 0,
   });
 };

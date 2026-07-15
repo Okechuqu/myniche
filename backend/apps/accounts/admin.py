@@ -17,7 +17,13 @@ class UserAdmin(DjangoUserAdmin):
         "created_at",
     )
     list_select_related = ()
-    search_fields = ("email", "username", "niche", "creator_goal")
+    search_fields = (
+        "email",
+        "username",
+        "niche",
+        "main_platform",
+        "creator_goal",
+    )
     list_filter = ("provider", "plan_name", "is_staff", "is_active")
     ordering = ("-created_at",)
     readonly_fields = ("created_at", "last_login", "date_joined")
@@ -27,6 +33,7 @@ class UserAdmin(DjangoUserAdmin):
             {
                 "fields": (
                     "niche",
+                    "main_platform",
                     "creator_goal",
                     "avatar",
                     "plan_name",
@@ -47,7 +54,13 @@ class UserAdmin(DjangoUserAdmin):
             "Creator profile",
             {
                 "classes": ("wide",),
-                "fields": ("email", "niche", "creator_goal", "plan_name"),
+                "fields": (
+                    "email",
+                    "niche",
+                    "main_platform",
+                    "creator_goal",
+                    "plan_name",
+                ),
             },
         ),
     )

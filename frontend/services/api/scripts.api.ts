@@ -12,3 +12,7 @@ export const listScripts = async () => {
     created_at: string;
   }>;
 };
+
+export const deleteScript = async (scriptId: number) => {
+  await api.delete(`/scripts/${scriptId}/`);
+};

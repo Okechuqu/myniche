@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from .models import AuditLog
+from .models import MaintenanceFlag
 
 
 @admin.register(AuditLog)
@@ -18,3 +19,18 @@ class AuditLogAdmin(admin.ModelAdmin):
     @admin.display(ordering="user__email", description="User")
     def user_email(self, obj):
         return obj.user.email if obj.user_id else "System"
+
+
+@admin.register(MaintenanceFlag)
+class MaintenanceFlagAdmin(admin.ModelAdmin):
+    list_display = ("enabled", "message", "updated_at")
+    readonly_fields = ("updated_at",)
+    actions = None
+
+    def has_add_permission(self, request):
+        # allow adding only if no flag exists
+        return not MaintenanceFlag.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        # prevent deletion from admin UI
+        return False

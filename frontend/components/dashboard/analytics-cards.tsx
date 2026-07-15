@@ -13,6 +13,7 @@ export default function AnalyticsCards() {
     queryKey: ["analytics-summary"],
     queryFn: getAnalyticsSummary,
     staleTime: 60 * 1000,
+    refetchOnWindowFocus: true,
   });
 
   const cards = [
@@ -37,6 +38,7 @@ export default function AnalyticsCards() {
       Icon: BarChart3,
     },
   ];
+
   const isEmpty =
     !isLoading &&
     !isError &&
@@ -47,7 +49,7 @@ export default function AnalyticsCards() {
 
   if (isEmpty) {
     return (
-      <div className="mt-6">
+      <div className="theme-surface-soft theme-elevated mt-6 rounded-[2rem] border p-6">
         <MyNicheEmptyState />
       </div>
     );
@@ -55,17 +57,21 @@ export default function AnalyticsCards() {
 
   return (
     <div className="mt-6 space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {cards.map(({ title, value, Icon }) => (
+      <div className="grid gap-4 xl:grid-cols-4">
+        {cards.map(({ title, value, Icon }, index) => (
           <div
             key={title}
-            className="rounded-lg border border-slate-800 bg-slate-900 p-5"
+            className={`rounded-[2rem] border p-5 shadow-sm transition ${
+              index === 1
+                ? "theme-surface theme-accent-border bg-[var(--accent-soft)]"
+                : "theme-surface"
+            }`}
           >
             <div className="flex items-center justify-between gap-3">
-              <p className="text-sm text-slate-400">{title}</p>
-              <Icon size={18} className="text-pink-300" />
+              <p className="theme-muted text-sm">{title}</p>
+              <Icon size={18} className="text-[var(--accent)]" />
             </div>
-            <h2 className="mt-3 text-2xl font-bold">
+            <h2 className="mt-4 text-3xl font-semibold text-[var(--foreground)] sm:text-4xl">
               {isLoading ? "..." : value}
             </h2>
           </div>
@@ -73,25 +79,29 @@ export default function AnalyticsCards() {
       </div>
 
       {isError && (
-        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+        <div className="rounded-[2rem] border border-red-500/30 bg-red-500/10 p-5 text-sm text-red-500">
           Dashboard data could not be loaded.
         </div>
       )}
 
       {data?.recent_scripts.length ? (
-        <section className="rounded-lg border border-slate-800 bg-slate-900 p-5">
-          <h2 className="font-semibold">Recent scripts</h2>
-          <div className="mt-4 divide-y divide-slate-800">
+        <section className="theme-surface rounded-[2rem] border p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-[var(--foreground)]">
+            Recent scripts
+          </h2>
+          <div className="mt-5 divide-y divide-[var(--border)]">
             {data.recent_scripts.map((script) => (
               <div
                 key={script.id}
-                className="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-2 border-b border-[var(--border)] py-4 last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
-                  <p className="font-medium text-slate-100">{script.title}</p>
-                  <p className="text-sm text-slate-400">{script.platform}</p>
+                  <p className="font-medium text-[var(--foreground)]">
+                    {script.title}
+                  </p>
+                  <p className="theme-muted text-sm">{script.platform}</p>
                 </div>
-                <time className="text-xs text-slate-500">
+                <time className="theme-muted text-xs uppercase tracking-[0.3em]">
                   {new Date(script.created_at).toLocaleDateString()}
                 </time>
               </div>

@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from apps.common import views as common_views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -34,4 +35,6 @@ urlpatterns = [
     path("api/analytics/", include("apps.analytics.urls")),
     path("api/jobs/", include("apps.jobs.urls")),
     path("api/public/", include("apps.public.urls")),
+    path("health/", common_views.health),
+    path("api/admin/maintenance/toggle/", common_views.toggle_maintenance),
 ]

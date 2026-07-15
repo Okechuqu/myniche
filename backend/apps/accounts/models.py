@@ -6,8 +6,10 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
 
     niche = models.CharField(max_length=100, blank=True)
+    main_platform = models.CharField(max_length=100, blank=True)
     creator_goal = models.CharField(max_length=255, blank=True)
     avatar = models.URLField(blank=True)
+    agreed_to_privacy = models.BooleanField(default=False)
 
     provider = models.CharField(max_length=50, default="email")
     google_sub = models.CharField(

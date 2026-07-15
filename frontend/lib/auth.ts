@@ -1,7 +1,7 @@
 import { useAuthStore } from "@/store/auth.store";
 
 const ACCESS_COOKIE_NAME = "access";
-const ACCESS_COOKIE_MAX_AGE = 60 * 60 * 24;
+const ACCESS_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 
 const setAccessCookie = (access: string) => {
   if (typeof document === "undefined") {
