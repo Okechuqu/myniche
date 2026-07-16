@@ -130,7 +130,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASE_URL = config('DATABASE_URL_PROD', default='')
+DATABASE_URL = config('DATABASE_URL', default='')
 if DATABASE_URL:
     parsed = urlparse(DATABASE_URL)
     DATABASES = {
