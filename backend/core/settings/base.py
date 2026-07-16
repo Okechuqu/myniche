@@ -38,6 +38,8 @@ DEFAULT_FROM_EMAIL = config(
     "DEFAULT_FROM_EMAIL",
     default="noreply@myniche.local",
 )
+SUPABASE_URL = config("SUPABASE_URL", default="")
+SUPABASE_SERVICE_ROLE_KEY = config("SUPABASE_SERVICE_ROLE_KEY", default="")
 EMAIL_BACKEND = config(
     "EMAIL_BACKEND",
     default="django.core.mail.backends.console.EmailBackend",
@@ -128,7 +130,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASE_URL = config('DATABASE_URL', default='')
+DATABASE_URL = config('DATABASE_URL_PROD', default='')
 if DATABASE_URL:
     parsed = urlparse(DATABASE_URL)
     DATABASES = {

@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 from .models import ContentPlan, PlannedContent
 from .serializers import GeneratePlanSerializer
 from .services.planner_generator import PlannerGeneratorService
+from apps.accounts.services.supabase_profile import SupabaseProfileService
 
 
 def _current_week_start():
@@ -47,12 +48,21 @@ def _plan_payload(plan):
     }
 
 
+def _profile_field(user, field_name, fallback=""):
+    value = SupabaseProfileService.get_profile_field(user.id, field_name)
+    if value is not None:
+        return value
+    return getattr(user, field_name, fallback) or fallback
+
+
 def _default_niche(user):
-    return user.niche
+    return _profile_field(user, "niche", fallback=user.niche or "")
 
 
 def _default_platform(user):
-    return user.main_platform or "All platforms"
+    platform = _profile_field(user, "main_platform",
+                              fallback=user.main_platform or "")
+    return platform or "All platforms"
 
 
 def _is_auto_generated_plan(plan):
@@ -105,7 +115,7 @@ def _sync_weekly_plan_items(plan, niche):
 
 
 def _ensure_weekly_plan(user):
-    if not user.niche:
+    if not _profile_field(user, "niche", fallback=user.niche or ""):
         return None
 
     week_start = _current_week_start()
@@ -151,7 +161,7 @@ def _ensure_weekly_plan(user):
 
 
 def _ensure_monthly_plan(user):
-    if not user.niche:
+    if not _profile_field(user, "niche", fallback=user.niche or ""):
         return None
 
     month_start = _current_month_start()
@@ -280,7 +290,7 @@ class CurrentPlansView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        if not request.user.niche:
+        if not _profile_field(request.user, "niche", fallback=request.user.niche):
             return Response(
                 {
                     "missing_niche": True,

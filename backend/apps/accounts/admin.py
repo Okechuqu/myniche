@@ -20,9 +20,6 @@ class UserAdmin(DjangoUserAdmin):
     search_fields = (
         "email",
         "username",
-        "niche",
-        "main_platform",
-        "creator_goal",
     )
     list_filter = ("provider", "plan_name", "is_staff", "is_active")
     ordering = ("-created_at",)
@@ -32,10 +29,6 @@ class UserAdmin(DjangoUserAdmin):
             "Creator profile",
             {
                 "fields": (
-                    "niche",
-                    "main_platform",
-                    "creator_goal",
-                    "avatar",
                     "plan_name",
                     "script_quota",
                 )
@@ -49,18 +42,4 @@ class UserAdmin(DjangoUserAdmin):
             },
         ),
     )
-    add_fieldsets = DjangoUserAdmin.add_fieldsets + (
-        (
-            "Creator profile",
-            {
-                "classes": ("wide",),
-                "fields": (
-                    "email",
-                    "niche",
-                    "main_platform",
-                    "creator_goal",
-                    "plan_name",
-                ),
-            },
-        ),
-    )
+    add_fieldsets = DjangoUserAdmin.add_fieldsets

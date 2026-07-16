@@ -36,6 +36,8 @@ Important environment variables (backend):
 - `DATABASE_URL` - e.g. `postgres://user:pass@db:5432/myniche`
 - `REDIS_URL` - e.g. `redis://redis:6379/0`
 - `DJANGO_SETTINGS_MODULE` - e.g. `core.settings.development` or `core.settings.production`
+- `SUPABASE_URL` - Your Supabase project URL, e.g. `https://xyz123.supabase.co`
+- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key for trusted server-side profile writes
 
 Frontend env:
 

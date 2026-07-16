@@ -17,7 +17,13 @@ const getErrorMessage = (error: unknown) => {
 
   if (isAxiosError(error) && error.response?.data) {
     const data = error.response.data;
-    if (typeof data === "string") return data;
+    if (typeof data === "string") {
+      // Avoid rendering raw HTML error pages returned by the backend
+      if (data.trim().startsWith("<")) {
+        return `Please wait while we fix this(${error.response.status}), you can mail us to get faster support.`;
+      }
+      return data;
+    }
     if (typeof data === "object" && data !== null) {
       return Object.entries(data)
         .map(([key, value]) =>

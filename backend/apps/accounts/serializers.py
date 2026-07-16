@@ -7,6 +7,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from rest_framework import serializers
 
 from .models import User
+from .services.supabase_profile import SupabaseProfileService
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -40,6 +41,10 @@ class LoginSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    niche = serializers.SerializerMethodField()
+    main_platform = serializers.SerializerMethodField()
+    creator_goal = serializers.SerializerMethodField()
+    avatar = serializers.SerializerMethodField()
     has_usable_password = serializers.SerializerMethodField()
 
     class Meta:
@@ -59,11 +64,34 @@ class UserSerializer(serializers.ModelSerializer):
             "has_usable_password",
         )
 
+    def _profile_data(self, user):
+        if not hasattr(self, "_cached_profile"):
+            self._cached_profile = SupabaseProfileService.get_profile(user.id) or {
+            }
+        return self._cached_profile
+
+    def get_niche(self, user):
+        return self._profile_data(user).get("niche", "")
+
+    def get_main_platform(self, user):
+        return self._profile_data(user).get("main_platform", "")
+
+    def get_creator_goal(self, user):
+        return self._profile_data(user).get("creator_goal", "")
+
+    def get_avatar(self, user):
+        return self._profile_data(user).get("avatar", "")
+
     def get_has_usable_password(self, user):
         return user.has_usable_password()
 
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
+    niche = serializers.CharField(required=False, allow_blank=True)
+    main_platform = serializers.CharField(required=False, allow_blank=True)
+    creator_goal = serializers.CharField(required=False, allow_blank=True)
+    avatar = serializers.CharField(required=False, allow_blank=True)
+
     class Meta:
         model = User
         fields = (
@@ -75,10 +103,6 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         )
         extra_kwargs = {
             "username": {"required": True},
-            "niche": {"required": False, "allow_blank": True},
-            "main_platform": {"required": False, "allow_blank": True},
-            "creator_goal": {"required": False, "allow_blank": True},
-            "avatar": {"required": False, "allow_blank": True},
         }
 
     def validate_username(self, value):
@@ -92,6 +116,37 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Username is already in use")
 
         return value
+
+    def update(self, instance, validated_data):
+        username = validated_data.get("username", instance.username)
+        profile_fields = {
+            key: validated_data[key]
+            for key in ("niche", "main_platform", "creator_goal", "avatar")
+            if key in validated_data
+        }
+
+        update_fields = []
+
+        if username != instance.username:
+            instance.username = username
+            update_fields.append("username")
+
+        if profile_fields:
+            for key, value in profile_fields.items():
+                setattr(instance, key, value)
+                update_fields.append(key)
+
+            try:
+                SupabaseProfileService.upsert_profile(
+                    instance.id, profile_fields)
+            except RuntimeError:
+                # Keep local user mirror values if Supabase is unavailable.
+                pass
+
+        if update_fields:
+            instance.save(update_fields=update_fields)
+
+        return instance
 
 
 class PasswordChangeSerializer(serializers.Serializer):

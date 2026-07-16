@@ -5,9 +5,11 @@ from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
-from rest_framework.test import APITestCase
+from rest_framework.test import APIRequestFactory, APITestCase
 
+from apps.accounts.serializers import ProfileUpdateSerializer, UserSerializer
 from apps.accounts.services.google_auth import GoogleAuthService
+from apps.accounts.services.supabase_profile import SupabaseProfileService
 
 
 class AuthTests(APITestCase):
@@ -296,3 +298,66 @@ class AuthTests(APITestCase):
                 "google-id-token",
                 "google-client-id",
             )
+
+    @patch.object(SupabaseProfileService, "get_profile")
+    def test_user_serializer_loads_supabase_profile_data(self, get_profile):
+        user_model = get_user_model()
+        user = user_model.objects.create_user(
+            email="profile@example.com",
+            username="profile-user",
+            password="password123",
+        )
+        get_profile.return_value = {
+            "niche": "fitness",
+            "main_platform": "TikTok",
+            "creator_goal": "Publish daily short-form videos",
+            "avatar": "https://example.com/avatar.png",
+        }
+
+        serializer = UserSerializer(user)
+        self.assertEqual(serializer.data["niche"], "fitness")
+        self.assertEqual(serializer.data["main_platform"], "TikTok")
+        self.assertEqual(
+            serializer.data["creator_goal"], "Publish daily short-form videos")
+        self.assertEqual(
+            serializer.data["avatar"], "https://example.com/avatar.png")
+
+    @patch.object(SupabaseProfileService, "upsert_profile")
+    def test_profile_update_serializer_upserts_supabase_profile(self, upsert_profile):
+        user_model = get_user_model()
+        user = user_model.objects.create_user(
+            email="update@example.com",
+            username="update-user",
+            password="password123",
+        )
+        factory = APIRequestFactory()
+        request = factory.patch("/api/accounts/profile/")
+        request.user = user
+
+        serializer = ProfileUpdateSerializer(
+            instance=user,
+            data={
+                "username": "updated-user",
+                "niche": "fitness",
+                "main_platform": "TikTok",
+                "creator_goal": "Publish daily videos",
+                "avatar": "https://example.com/avatar.png",
+            },
+            context={"request": request},
+            partial=True,
+        )
+
+        self.assertTrue(serializer.is_valid())
+        serializer.save()
+
+        upsert_profile.assert_called_once_with(
+            user.id,
+            {
+                "niche": "fitness",
+                "main_platform": "TikTok",
+                "creator_goal": "Publish daily videos",
+                "avatar": "https://example.com/avatar.png",
+            },
+        )
+        user.refresh_from_db()
+        self.assertEqual(user.username, "updated-user")

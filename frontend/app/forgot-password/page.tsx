@@ -34,7 +34,7 @@ const getErrorMessage = (error: unknown) => {
     return error.message;
   }
 
-  return "Password reset request failed";
+  return "We are unable to process your Password reset request at this time. Please try again later.";
 };
 
 export default function ForgotPasswordPage() {
