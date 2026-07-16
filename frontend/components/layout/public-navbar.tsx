@@ -280,7 +280,16 @@ export default function PublicNavbar() {
               </nav>
             </div>
 
-            <div className="rounded-3xl border border-[var(--border)] bg-linear-to-br from-[#d4af37]/15 via-[var(--surface-soft)] to-[#3b82f6]/10 p-4">
+            <div className="mt-6">
+              <p className="text-[10px] uppercase tracking-[0.35em] text-[var(--text-muted)]">
+                Theme
+              </p>
+              <div className="mt-3 flex items-center">
+                <ThemeToggle compact />
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-3xl border border-[var(--border)] bg-linear-to-br from-[#d4af37]/15 via-[var(--surface-soft)] to-[#3b82f6]/10 p-4">
               <p className="text-[10px] uppercase tracking-[0.35em] text-[var(--text-muted)]">
                 Connect
               </p>
