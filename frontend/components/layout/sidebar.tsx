@@ -79,7 +79,7 @@ export default function Sidebar() {
           className="group flex min-w-0 items-center gap-3"
         >
           <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-[#d4af37] via-[#3b82f6] to-[#05070b] text-white shadow-lg shadow-[#d4af37]/20 transition group-hover:scale-105">
-            <span className="text-lg font-semibold">N</span>
+            <span className="text-lg font-semibold">R</span>
           </span>
           <div
             className={[
@@ -88,7 +88,7 @@ export default function Sidebar() {
             ].join(" ")}
           >
             <p className="text-base font-semibold text-[var(--foreground)]">
-              MyNiche
+              ReelsDraft
             </p>
             <p className="theme-muted text-xs">AI script growth hub</p>
           </div>

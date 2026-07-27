@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import MyNicheEmptyState from "@/components/shared/myniche-empty-state";
+import ReelsDraftEmptyState from "@/components/shared/myniche-empty-state";
 import { getCurrentPlans } from "@/services/api/planner.api";
 
 const days = [
@@ -30,9 +30,9 @@ export default function PlannerBoard() {
   if (data && "missing_niche" in data) {
     return (
       <div className="space-y-4">
-        <MyNicheEmptyState
+        <ReelsDraftEmptyState
           title="Planner needs your niche"
-          description="Add your creator niche on the profile page so MyNiche can generate weekly planner ideas tailored to your brand."
+          description="Add your creator niche on the profile page so ReelsDraft can generate weekly planner ideas tailored to your brand."
         />
         <div className="flex justify-center">
           <Link
@@ -59,7 +59,7 @@ export default function PlannerBoard() {
         </div>
       ) : null}
 
-      <div className="grid gap-4 xl:grid-cols-7 lg:grid-cols-2">
+      <div className="grid gap-4 xl:grid-cols-4 lg:grid-cols-3">
         {days.map((day) => {
           const dayItems = items.filter((item) => item.day_name === day);
 

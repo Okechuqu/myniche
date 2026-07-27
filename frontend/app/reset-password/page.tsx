@@ -169,7 +169,7 @@ export default function ResetPasswordPage() {
         <div className="theme-surface theme-elevated w-full rounded-2xl border p-8">
           <h1 className="text-3xl font-bold">Choose a new password</h1>
           <p className="theme-muted mt-2 text-sm">
-            Use a password that is hard to guess and unique to MyNiche.
+            Use a password that is hard to guess and unique to ReelsDraft.
           </p>
 
           <Suspense

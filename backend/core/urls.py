@@ -37,4 +37,5 @@ urlpatterns = [
     path("api/public/", include("apps.public.urls")),
     path("health/", common_views.health),
     path("api/admin/maintenance/toggle/", common_views.toggle_maintenance),
+    path("api/common/cookie-consent/", common_views.record_cookie_consent, name="cookie-consent"),
 ]

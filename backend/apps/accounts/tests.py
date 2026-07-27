@@ -43,6 +43,7 @@ class AuthTests(APITestCase):
                 "username": "tester",
                 "password": "password123",
                 "agreed_to_privacy": True,
+                "agreed_to_terms": True,
             },
             format="json",
         )
@@ -261,6 +262,8 @@ class AuthTests(APITestCase):
         user = GoogleAuthService.authenticate(
             "google-id-token",
             "google-client-id",
+            True,
+            True,
         )
 
         self.assertEqual(user.email, "new-google@example.com")
@@ -297,6 +300,8 @@ class AuthTests(APITestCase):
             GoogleAuthService.authenticate(
                 "google-id-token",
                 "google-client-id",
+                True,
+                True,
             )
 
     @patch.object(SupabaseProfileService, "get_profile")

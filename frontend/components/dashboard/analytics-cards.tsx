@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { BarChart3, CalendarCheck, FileText, Target } from "lucide-react";
 
-import MyNicheEmptyState from "@/components/shared/myniche-empty-state";
+import ReelsDraftEmptyState from "@/components/shared/myniche-empty-state";
 import { getAnalyticsSummary } from "@/services/api/analytics.api";
 
 const numberFormat = new Intl.NumberFormat("en");
@@ -50,7 +50,7 @@ export default function AnalyticsCards() {
   if (isEmpty) {
     return (
       <div className="theme-surface-soft theme-elevated mt-6 rounded-[2rem] border p-6">
-        <MyNicheEmptyState />
+        <ReelsDraftEmptyState />
       </div>
     );
   }

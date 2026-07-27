@@ -16,6 +16,23 @@ class AuditLog(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+class CookieConsent(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    accepted = models.BooleanField()
+    policy_version = models.CharField(max_length=32)
+    purposes = models.JSONField(default=list)
+    anonymous_id = models.CharField(max_length=64, blank=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
 class MaintenanceFlag(models.Model):
     """Singleton-style flag to control maintenance mode at runtime."""
 

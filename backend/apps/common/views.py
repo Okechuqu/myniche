@@ -2,9 +2,12 @@ from django.shortcuts import render
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import user_passes_test
+from django.conf import settings
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 import json
 
-from .models import MaintenanceFlag
+from .models import MaintenanceFlag, CookieConsent
 
 
 def health(request):
@@ -41,3 +44,31 @@ def toggle_maintenance(request):
         flag.save()
 
     return JsonResponse({"enabled": flag.enabled, "message": flag.message})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def record_cookie_consent(request):
+    try:
+        payload = json.loads(request.body.decode("utf-8") or "{}")
+    except Exception:
+        return HttpResponseBadRequest("Invalid JSON")
+
+    accepted = payload.get("accepted")
+    if not isinstance(accepted, bool):
+        return HttpResponseBadRequest("Missing accepted flag")
+
+    anonymous_id = payload.get("anonymous_id", "")
+    if not isinstance(anonymous_id, str) or len(anonymous_id) > 64:
+        return HttpResponseBadRequest("Invalid consent identifier")
+
+    user = request.user if request.user.is_authenticated else None
+    CookieConsent.objects.create(
+        user=user,
+        accepted=accepted,
+        policy_version=settings.COOKIE_POLICY_VERSION,
+        purposes=["essential_storage"],
+        anonymous_id=anonymous_id,
+    )
+
+    return JsonResponse({"recorded": True})

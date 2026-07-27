@@ -82,7 +82,7 @@ export default function ToolsPage() {
       <section className="theme-surface mt-6 rounded-lg border p-5">
         <h2 className="font-semibold">Recommended workflow</h2>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {["Plan in MyNiche", "Record and edit", "Track what works"].map(
+          {["Plan in ReelsDraft", "Record and edit", "Track what works"].map(
             (step) => (
               <div
                 key={step}

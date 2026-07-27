@@ -11,6 +11,7 @@ from apps.scripts.models import Script
 from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta
+from apps.accounts.services.privacy import PrivacyService
 
 
 def _attach_script_to_current_weekly_item(user, topic, content, generated_title=None, generated_variant=None):
@@ -120,3 +121,8 @@ def generate_script_task(
         job.save()
 
         raise
+
+
+@shared_task
+def delete_expired_personal_data():
+    return PrivacyService.delete_expired_data()

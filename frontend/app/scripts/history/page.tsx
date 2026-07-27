@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Loader2, Trash2 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import DashboardLayout from "@/components/layout/dashboard-layout";
-import MyNicheEmptyState from "@/components/shared/myniche-empty-state";
+import ReelsDraftEmptyState from "@/components/shared/myniche-empty-state";
 import { useScripts } from "@/features/scripts/hooks/use-scripts";
 import { deleteScript } from "@/services/api/scripts.api";
 
@@ -71,7 +71,7 @@ export default function ScriptHistoryPage() {
       )}
 
       {!isLoading && !isError && data?.length === 0 && (
-        <MyNicheEmptyState description="Generated scripts will appear here once you create and save your first piece." />
+        <ReelsDraftEmptyState description="Generated scripts will appear here once you create and save your first piece." />
       )}
 
       {data && data.length > 0 && (

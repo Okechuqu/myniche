@@ -115,7 +115,7 @@ export default function ProfilePage() {
                 {user?.email ?? "Signed-in account"}
               </div>
               <p className="theme-muted mt-2 text-sm leading-6">
-                Your niche and goal help MyNiche tailor scripts, planner ideas,
+                Your niche and goal help ReelsDraft tailor scripts, planner ideas,
                 and dashboard context.
               </p>
             </div>

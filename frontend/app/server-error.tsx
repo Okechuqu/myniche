@@ -58,7 +58,7 @@ export default function ServerErrorPage() {
               },
               {
                 label: "Support",
-                value: "team@myniche.com",
+                value: "team@reelsdraft.com",
                 color: "text-[var(--foreground)]",
               },
             ].map((item) => (
@@ -86,7 +86,7 @@ export default function ServerErrorPage() {
               Refresh
             </Link>
             <Link
-              href="mailto:team@myniche.com"
+              href="mailto:team@reelsdraft.com"
               className="inline-flex items-center gap-2 rounded-full border border-amber-600/30 bg-[var(--surface)] px-6 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:border-amber-500 hover:bg-amber-900/10"
             >
               <Mail size={16} />

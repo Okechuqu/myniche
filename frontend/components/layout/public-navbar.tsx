@@ -84,9 +84,9 @@ export default function PublicNavbar() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
           <Link
             href="/"
-            className="text-xl font-bold bg-linear-to-r from-[#d4af37] via-[#3b82f6] to-[#05070b] bg-clip-text text-transparent"
+            className="text-xl font-bold bg-linear-to-r from-[#d4af37] via-[#3b82f6] to-[#7c93bf] bg-clip-text text-transparent"
           >
-            MyNiche
+            ReelsDraft
           </Link>
 
           <nav className="hidden items-center gap-6 md:flex">
@@ -219,7 +219,7 @@ export default function PublicNavbar() {
                   Navigate
                 </p>
                 <p className="text-lg font-semibold text-[var(--foreground)]">
-                  MyNiche
+                  ReelsDraft
                 </p>
               </div>
               <button

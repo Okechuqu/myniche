@@ -2,6 +2,8 @@ from google.oauth2 import id_token
 
 from google.auth.transport import requests
 from django.utils.text import slugify
+from django.conf import settings
+from django.utils import timezone
 
 from apps.accounts.models import User
 
@@ -11,7 +13,9 @@ class GoogleAuthService:
     @staticmethod
     def authenticate(
         google_token: str,
-        client_id: str
+        client_id: str,
+        agreed_to_privacy: bool,
+        agreed_to_terms: bool,
     ):
         if not client_id:
             raise ValueError("Google client ID is not configured")
@@ -79,6 +83,12 @@ class GoogleAuthService:
 
             return user
 
+        if not agreed_to_privacy:
+            raise ValueError("You must accept the privacy policy to create an account")
+
+        if not agreed_to_terms:
+            raise ValueError("You must accept the terms of service to create an account")
+
         user = User.objects.create_user(
             email=email,
             username=GoogleAuthService._unique_username(
@@ -88,6 +98,12 @@ class GoogleAuthService:
             provider="google",
             google_sub=google_sub,
             avatar=payload.get("picture", ""),
+            agreed_to_privacy=True,
+            privacy_policy_version=settings.PRIVACY_POLICY_VERSION,
+            privacy_accepted_at=timezone.now(),
+            agreed_to_terms=True,
+            terms_version=settings.TERMS_VERSION,
+            terms_accepted_at=timezone.now(),
         )
 
         return user

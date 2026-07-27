@@ -1,21 +1,21 @@
-interface MyNicheEmptyStateProps {
+interface ReelsDraftEmptyStateProps {
   title?: string;
   description?: string;
 }
 
-export default function MyNicheEmptyState({
+export default function ReelsDraftEmptyState({
   title = "Dashboard is empty",
   description = "Create your first script or planner item and this space will begin filling with real creator data.",
-}: MyNicheEmptyStateProps) {
+}: ReelsDraftEmptyStateProps) {
   return (
     <div className="theme-surface rounded-lg border p-6 text-center">
       <svg
         viewBox="0 0 520 260"
         role="img"
-        aria-labelledby="myniche-empty-title"
+        aria-labelledby="reelsdraft-empty-title"
         className="mx-auto h-auto w-full max-w-xl"
       >
-        <title id="myniche-empty-title">MyNiche empty dashboard</title>
+        <title id="reelsdraft-empty-title">ReelsDraft empty dashboard</title>
         <defs>
           <linearGradient id="emptyBrand" x1="84" y1="52" x2="430" y2="220">
             <stop offset="0%" stopColor="#ec4899" />
@@ -80,7 +80,7 @@ export default function MyNicheEmptyState({
           fontSize="30"
           fontWeight="800"
         >
-          MyNiche
+          ReelsDraft
         </text>
         <text
           x="260"

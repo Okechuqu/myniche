@@ -36,8 +36,13 @@ FRONTEND_URL = config(
 ).rstrip("/")
 DEFAULT_FROM_EMAIL = config(
     "DEFAULT_FROM_EMAIL",
-    default="noreply@myniche.local",
+    default="noreply@reelsdraft.local",
 )
+PRIVACY_POLICY_VERSION = config("PRIVACY_POLICY_VERSION", default="2026-07-21")
+PRIVACY_CONTACT_EMAIL = config("PRIVACY_CONTACT_EMAIL", default=DEFAULT_FROM_EMAIL)
+TERMS_VERSION = config("TERMS_VERSION", default="2026-07-21")
+COOKIE_POLICY_VERSION = config("COOKIE_POLICY_VERSION", default="2026-07-21")
+DATA_RETENTION_DAYS = config("DATA_RETENTION_DAYS", default=365, cast=int)
 SUPABASE_URL = config("SUPABASE_URL", default="")
 SUPABASE_SERVICE_ROLE_KEY = config("SUPABASE_SERVICE_ROLE_KEY", default="")
 EMAIL_BACKEND = config(
@@ -147,9 +152,9 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('POSTGRES_DB', default='myniche'),
-            'USER': config('POSTGRES_USER', default='myniche'),
-            'PASSWORD': config('POSTGRES_PASSWORD', default='myniche'),
+            'NAME': config('POSTGRES_DB', default='reelsdraft'),
+            'USER': config('POSTGRES_USER', default='reelsdraft'),
+            'PASSWORD': config('POSTGRES_PASSWORD', default='reelsdraft'),
             'HOST': config('POSTGRES_HOST', default='db'),
             'PORT': config('POSTGRES_PORT', default='5432'),
         }
@@ -280,10 +285,16 @@ CELERY_BROKER_URL = config(
     "CELERY_BROKER_URL", default="redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = config(
     "CELERY_RESULT_BACKEND", default="redis://localhost:6379/1")
+CELERY_BEAT_SCHEDULE = {
+    "delete-expired-personal-data": {
+        "task": "apps.ai.tasks.delete_expired_personal_data",
+        "schedule": timedelta(days=1),
+    },
+}
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "MyNiche API",
-    "DESCRIPTION": "Backend API for MyNiche creator platform",
+    "TITLE": "ReelsDraft API",
+    "DESCRIPTION": "Backend API for ReelsDraft creator platform",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }

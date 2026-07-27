@@ -78,7 +78,7 @@ export default function FeaturesPage() {
                 </span>
               </h1>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--text-muted)] sm:mt-6 sm:text-base lg:text-lg lg:leading-8">
-                From ideation to publishing, MyNiche gives creators a connected
+                From ideation to publishing, ReelsDraft gives creators a connected
                 system for strategy, scripting, and momentum.
               </p>
               <div className="mt-6 flex flex-wrap gap-2 sm:mt-8 sm:gap-3">

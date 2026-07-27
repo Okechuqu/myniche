@@ -1,7 +1,7 @@
 "use client";
 
 import { isAxiosError } from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
 import { googleLogin } from "@/services/api/auth.api";
@@ -37,10 +37,30 @@ type GoogleWindow = Window & {
   };
 };
 
-export default function GoogleButton() {
+export default function GoogleButton({
+  agreedToPrivacy = false,
+  requirePrivacyAcceptance = false,
+  agreedToTerms = false,
+  requireTermsAcceptance = false,
+}: {
+  agreedToPrivacy?: boolean;
+  requirePrivacyAcceptance?: boolean;
+  agreedToTerms?: boolean;
+  requireTermsAcceptance?: boolean;
+}) {
   const router = useRouter();
   const setSession = useAuthStore((s) => s.setSession);
   const [ready, setReady] = useState(false);
+  const privacyAcceptedRef = useRef(agreedToPrivacy);
+  const termsAcceptedRef = useRef(agreedToTerms);
+
+  useEffect(() => {
+    privacyAcceptedRef.current = agreedToPrivacy;
+  }, [agreedToPrivacy]);
+
+  useEffect(() => {
+    termsAcceptedRef.current = agreedToTerms;
+  }, [agreedToTerms]);
 
   useEffect(() => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
@@ -57,7 +77,17 @@ export default function GoogleButton() {
       if (!response?.credential) return;
 
       try {
-        const auth = await googleLogin({ token: response.credential });
+        if (requirePrivacyAcceptance && !privacyAcceptedRef.current) {
+          throw new Error("Accept the privacy policy before creating an account.");
+        }
+        if (requireTermsAcceptance && !termsAcceptedRef.current) {
+          throw new Error("Accept the terms of service before creating an account.");
+        }
+        const auth = await googleLogin({
+          token: response.credential,
+          agreed_to_privacy: privacyAcceptedRef.current,
+          agreed_to_terms: termsAcceptedRef.current,
+        });
         setSession({
           access: auth.access,
           refresh: auth.refresh,
@@ -102,7 +132,7 @@ export default function GoogleButton() {
     script.defer = true;
     script.onload = initializeGoogle;
     document.body.appendChild(script);
-  }, [router, setSession]);
+  }, [router, setSession, requirePrivacyAcceptance, requireTermsAcceptance]);
 
   const handleClick = () => {
     const win = window as GoogleWindow;
@@ -117,7 +147,11 @@ export default function GoogleButton() {
     <button
       type="button"
       onClick={handleClick}
-      disabled={!ready}
+      disabled={
+        !ready ||
+        (requirePrivacyAcceptance && !agreedToPrivacy) ||
+        (requireTermsAcceptance && !agreedToTerms)
+      }
       id="google-btn"
       className="theme-action-secondary inline-flex w-full items-center justify-center gap-3 rounded-lg border px-4 py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-60"
     >

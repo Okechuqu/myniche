@@ -4,6 +4,7 @@ import "./globals.css";
 import { QueryProvider } from "@/providers/query-provider";
 import { ToastProvider } from "@/providers/toast-provider";
 import ThemeProvider from "@/providers/theme-provider";
+import CookieConsent from "@/components/shared/cookie-consent";
 
 export const dynamic = "force-dynamic";
 
@@ -17,9 +18,20 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const FALLBACK_SITE_URL = "https://reelsdraft.com";
+
 const fallbackMetadata: Metadata = {
-  title: "MyNiche",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || FALLBACK_SITE_URL),
+  title: {
+    default: "ReelsDraft",
+    template: "%s | ReelsDraft",
+  },
   description: "AI Creator Operating System",
+  applicationName: "ReelsDraft",
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 async function fetchSiteConfiguration(): Promise<Metadata> {
@@ -33,21 +45,47 @@ async function fetchSiteConfiguration(): Promise<Metadata> {
       return fallbackMetadata;
     }
 
-    const config = await response.json();
+    const config = await response.json() as {
+      site_name?: string;
+      site_description?: string;
+      seo_title?: string;
+      seo_description?: string;
+      favicon_url?: string;
+      open_graph_image?: string;
+      canonical_url?: string;
+      twitter_site?: string;
+    };
+    const title = config.seo_title || config.site_name || "ReelsDraft";
+    const description =
+      config.seo_description ||
+      config.site_description ||
+      "AI Creator Operating System";
+    const canonicalUrl = config.canonical_url || process.env.NEXT_PUBLIC_SITE_URL || FALLBACK_SITE_URL;
+    const images = config.open_graph_image ? [config.open_graph_image] : undefined;
+
     return {
-      title: config.seo_title || config.site_name || fallbackMetadata.title,
-      description:
-        config.seo_description ||
-        config.site_description ||
-        fallbackMetadata.description,
+      ...fallbackMetadata,
+      metadataBase: new URL(canonicalUrl),
+      title,
+      description,
       icons: config.favicon_url ? { icon: config.favicon_url } : undefined,
+      alternates: {
+        canonical: canonicalUrl,
+      },
       openGraph: {
-        title: config.seo_title || config.site_name || fallbackMetadata.title,
-        description:
-          config.seo_description ||
-          config.site_description ||
-          fallbackMetadata.description,
-        images: config.open_graph_image ? [config.open_graph_image] : undefined,
+        type: "website",
+        url: canonicalUrl,
+        siteName: config.site_name || "ReelsDraft",
+        title,
+        description,
+        images,
+      },
+      twitter: {
+        card: "summary_large_image",
+        site: config.twitter_site || undefined,
+        title,
+        description,
+        images,
       },
     };
   } catch {
@@ -72,7 +110,7 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
-                  var theme = localStorage.getItem("myniche-theme") || "dark";
+                  var theme = localStorage.getItem("reelsdraft-theme") || "dark";
                   document.documentElement.classList.add(theme);
                 } catch (e) {
                   document.documentElement.classList.add("dark");
@@ -88,6 +126,7 @@ export default function RootLayout({
             <ToastProvider>{children}</ToastProvider>
           </QueryProvider>
         </ThemeProvider>
+        <CookieConsent />
       </body>
     </html>
   );

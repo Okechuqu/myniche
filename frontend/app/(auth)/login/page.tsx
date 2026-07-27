@@ -9,7 +9,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Home } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import FacebookButton from "@/components/auth/facebook-button";
 import GoogleButton from "@/components/auth/google-button";
 
 const getErrorMessage = (error: unknown) => {
@@ -91,14 +90,13 @@ export default function LoginPage() {
             <Home size={16} />
             Back to home
           </Link>
-          <h1 className="text-3xl font-bold">Login to MyNiche</h1>
+          <h1 className="text-3xl font-bold">Login to ReelsDraft</h1>
           <p className="theme-muted mt-2 text-sm">
             Continue with your creator workspace.
           </p>
 
           <div className="mt-8 space-y-3">
             <GoogleButton />
-            <FacebookButton />
           </div>
 
           <div className="relative my-6">

@@ -9,9 +9,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Home } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import FacebookButton from "@/components/auth/facebook-button";
 import GoogleButton from "@/components/auth/google-button";
 import PrivacyCheckbox from "./PrivacyCheckbox";
+import TermsCheckbox from "./TermsCheckbox";
 
 const getErrorMessage = (error: unknown) => {
   if (!error) return null;
@@ -72,6 +72,7 @@ export default function RegisterPage() {
   const passwordsMismatch =
     confirmPasswordValue.length > 0 && passwordValue !== confirmPasswordValue;
   const [privacyChecked, setPrivacyChecked] = useState(false);
+  const [termsChecked, setTermsChecked] = useState(false);
 
   useEffect(() => {
     const errorMessage = getErrorMessage(error);
@@ -93,12 +94,18 @@ export default function RegisterPage() {
       return;
     }
 
+    if (!termsChecked) {
+      setApiError("You must agree to the terms of service before registering.");
+      return;
+    }
+
     setApiError(null);
     mutate({
       email: values.email,
       username: values.username,
       password: values.password,
       agreed_to_privacy: privacyChecked,
+      agreed_to_terms: termsChecked,
     });
   };
 
@@ -115,14 +122,18 @@ export default function RegisterPage() {
             <Home size={16} />
             Back to home
           </Link>
-          <h1 className="text-3xl font-bold">Create MyNiche account</h1>
+          <h1 className="text-3xl font-bold">Create ReelsDraft account</h1>
           <p className="theme-muted mt-2 text-sm">
             Set up your creator workspace in minutes.
           </p>
 
           <div className="mt-8 space-y-3">
-            <GoogleButton />
-            <FacebookButton />
+            <GoogleButton
+              agreedToPrivacy={privacyChecked}
+              requirePrivacyAcceptance
+              agreedToTerms={termsChecked}
+              requireTermsAcceptance
+            />
           </div>
 
           <div className="relative my-6">
@@ -209,6 +220,11 @@ export default function RegisterPage() {
             <PrivacyCheckbox
               checked={privacyChecked}
               onChange={setPrivacyChecked}
+            />
+
+            <TermsCheckbox
+              checked={termsChecked}
+              onChange={setTermsChecked}
             />
 
             {registerErrorMessage && (

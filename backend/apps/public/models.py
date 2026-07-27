@@ -3,7 +3,7 @@ from django.utils.text import slugify
 
 
 class SiteConfiguration(models.Model):
-    site_name = models.CharField(max_length=255, default="MyNiche")
+    site_name = models.CharField(max_length=255, default="ReelsDraft")
     site_description = models.TextField(blank=True)
     contact_email = models.EmailField(blank=True)
     contact_phone = models.CharField(max_length=50, blank=True)
@@ -13,6 +13,7 @@ class SiteConfiguration(models.Model):
     seo_keywords = models.CharField(max_length=500, blank=True)
     open_graph_image = models.URLField(blank=True)
     canonical_url = models.URLField(blank=True)
+    twitter_site = models.CharField(max_length=50, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

@@ -5,7 +5,9 @@ import PublicNavbar from "@/components/layout/public-navbar";
 import Footer from "@/components/marketing/footer";
 import {
   getSiteContentBySlug,
+  getSiteConfiguration,
   type SiteContent,
+  type SiteConfiguration,
 } from "@/services/api/public.api";
 import {
   Bot,
@@ -29,38 +31,62 @@ const sections: PrivacySection[] = [
   {
     id: "information",
     title: "Information we collect",
-    body: "MyNiche collects account details such as your name, email address, creator niche, profile preferences, generated scripts, planner entries, and basic usage data needed to operate the product.",
+    body: "ReelsDraft collects account details (email address and username), creator profile preferences, generated scripts, planner entries, analytics snapshots, and security/audit records. We do not request special-category personal data; do not include it in AI prompts or workspace content.",
     icon: "Database",
   },
   {
     id: "usage",
     title: "How we use information",
-    body: "We use your information to authenticate your account, generate creator assets, personalize your workspace, maintain security, improve product quality, and communicate important account updates.",
+    body: "We process account and workspace data to perform our contract with you, maintain security, meet legal obligations, and pursue legitimate interests such as preventing abuse. We ask for your recorded agreement to this policy when an account is created. We do not use your workspace content for direct marketing without separate consent.",
     icon: "Sparkles",
+  },
+  {
+    id: "lawful-basis",
+    title: "Lawful basis for processing",
+    body: "Our legal bases are: contract (providing the service), legitimate interest (security, abuse prevention), and legal obligation (retention, audit). Where required, we rely on explicit consent for optional processing such as direct marketing.",
+    icon: "Shield",
   },
   {
     id: "ai-content",
     title: "AI-generated content",
-    body: "Prompts and creator inputs may be processed by AI providers to generate scripts, plans, and related outputs. Avoid submitting sensitive personal information that is not needed for generation.",
+    body: "Prompts and creator inputs are sent to the AI provider selected for the service (currently OpenAI or Google) solely to generate requested outputs. Avoid submitting personal or confidential information that is unnecessary for generation. Provider processing, retention, and international transfers are governed by the applicable data-processing agreement and transfer safeguards.",
     icon: "Bot",
   },
   {
     id: "sharing",
     title: "Data sharing",
-    body: "We do not sell your personal information. We may share limited data with service providers that help us host, authenticate, analyze, email, or generate content for the service.",
+    body: "We do not sell personal information. We use processors for hosting and profile storage (Supabase), authentication (Google), AI generation (OpenAI or Google), email delivery, and infrastructure. Data-processing agreements are in place with each provider. Where required, standard contractual clauses or equivalent safeguards govern international transfers.",
     icon: "Shield",
   },
   {
     id: "security",
     title: "Security",
-    body: "We use reasonable technical and organizational safeguards to protect account data, including authenticated API access and administrative controls.",
+    body: "We use authenticated API access, encryption in transit, access controls, rate limiting, audit logging, and production HTTPS settings. No system is perfectly secure; report suspected incidents through the privacy contact channel.",
     icon: "LockKeyhole",
   },
   {
     id: "choices",
     title: "Your choices",
-    body: "You can update your profile information from your workspace, request password resets, and contact us about account data questions or deletion requests.",
+    body: "You can correct profile data, download a portable JSON export, and permanently delete your account from Settings. You may also request access, restriction, objection, or rectification through the privacy contact channel. We respond within applicable legal time limits and may verify identity before acting.",
     icon: "SlidersHorizontal",
+  },
+];
+
+const additionalSections: PrivacySection[] = [
+  {
+    id: "retention",
+    title: "Retention",
+    body: "Account-linked workspace data is retained while your account is active. Deleting an account removes Django records and the associated Supabase profile. Completed AI jobs and audit records are automatically removed according to the configured retention period. Backups and legally required records may persist for a limited, documented restoration or compliance period.",
+  },
+  {
+    id: "cookies",
+    title: "Cookies and local storage",
+    body: "We use essential browser storage for authentication state and your theme preference. These are necessary to provide the signed-in service and are not used for advertising. If optional analytics or marketing technologies are added, they must remain disabled until you have made a separate opt-in choice.",
+  },
+  {
+    id: "children",
+    title: "Children",
+    body: "The service is not directed at children. Do not create an account or submit personal data if you are below the minimum age required to consent to data processing where you live.",
   },
 ];
 
@@ -75,25 +101,34 @@ const iconMap: Record<string, typeof Database> = {
 
 function getPrivacySections(content: SiteContent | null) {
   if (!content?.payload?.sections || !Array.isArray(content.payload.sections)) {
-    return sections;
+    return [...sections, ...additionalSections];
   }
 
   return content.payload.sections
     .filter(
       (section: unknown) => typeof section === "object" && section !== null,
     )
-    .map((section: any) => ({
+    .map((section) => {
+      const value = section as Record<string, unknown>;
+      const title = typeof value.title === "string" ? value.title : "Untitled";
+      const body = typeof value.body === "string"
+        ? value.body
+        : typeof value.description === "string"
+          ? value.description
+          : "";
+
+      return {
       id:
-        section.id ||
-        section.title
-          ?.toString()
+        (typeof value.id === "string" && value.id) ||
+        title
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, "-") ||
         "section",
-      title: section.title || "Untitled",
-      body: section.body || section.description || "",
-      icon: section.icon,
-    })) as PrivacySection[];
+      title,
+      body,
+      icon: typeof value.icon === "string" ? value.icon : undefined,
+    };
+    }) as PrivacySection[];
 }
 
 const quickFacts = [
@@ -105,19 +140,23 @@ const quickFacts = [
 
 export default function PrivacyPage() {
   const [remoteContent, setRemoteContent] = useState<SiteContent | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [siteConfig, setSiteConfig] = useState<SiteConfiguration | null>(null);
 
   useEffect(() => {
     let mounted = true;
 
     (async () => {
       try {
-        const content = await getSiteContentBySlug("privacy");
-        if (mounted && content?.is_published) setRemoteContent(content);
-      } catch (e) {
+        const [content, config] = await Promise.all([
+          getSiteContentBySlug("privacy"),
+          getSiteConfiguration(),
+        ]);
+        if (mounted) {
+          if (content?.is_published) setRemoteContent(content);
+          setSiteConfig(config);
+        }
+      } catch {
         // fallback to static content on any error
-      } finally {
-        if (mounted) setLoading(false);
       }
     })();
 
@@ -139,7 +178,7 @@ export default function PrivacyPage() {
             <aside className="lg:sticky lg:top-28 lg:self-start">
               <div className="rounded-lg bg-[var(--surface-soft)] p-5 shadow-[0_26px_80px_-60px_rgba(59,130,246,0.8)] backdrop-blur sm:p-6">
                 <h1 className="mt-6 text-3xl font-bold leading-tight sm:text-4xl">
-                  {remoteContent?.title ?? "How MyNiche handles creator data."}
+                  {remoteContent?.title ?? "How ReelsDraft handles creator data."}
                 </h1>
                 <p className="theme-muted mt-4 text-sm leading-6">
                   {remoteContent?.updated_at
@@ -147,7 +186,7 @@ export default function PrivacyPage() {
                     : "Last updated June 23, 2026."}{" "}
                   {remoteContent
                     ? null
-                    : "This policy explains what MyNiche collects, why we collect it, and how creator workspace data is used."}
+                    : "This policy explains what ReelsDraft collects, why we collect it, and how creator workspace data is used."}
                 </p>
 
                 <div className="mt-6 grid gap-2">
@@ -194,7 +233,7 @@ export default function PrivacyPage() {
                 </section>
               ) : (
                 getPrivacySections(remoteContent).map(
-                  ({ id, title, body, icon }, index) => {
+                  ({ id, title, body, icon }) => {
                     const Icon = icon ? (iconMap[icon] ?? Database) : Database;
                     return (
                       <details
@@ -232,9 +271,11 @@ export default function PrivacyPage() {
                       Questions about your data
                     </h2>
                     <p className="theme-muted mt-3 text-sm leading-6">
-                      For privacy questions, contact the MyNiche team through
-                      your account support channel or the email address provided
-                      by the service operator.
+                      For privacy questions, contact the ReelsDraft team at{" "}
+                      <span className="font-semibold text-[var(--foreground)]">
+                        {siteConfig?.contact_email || "support@reelsdraft.example"}
+                      </span>
+                      .
                     </p>
                   </div>
                 </div>

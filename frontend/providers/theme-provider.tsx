@@ -17,8 +17,8 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const STORAGE_KEY = "myniche-theme";
-const THEME_CHANGE_EVENT = "myniche-theme-change";
+const STORAGE_KEY = "reelsdraft-theme";
+const THEME_CHANGE_EVENT = "reelsdraft-theme-change";
 const DEFAULT_THEME: Theme = "dark";
 
 function isTheme(value: string | null): value is Theme {

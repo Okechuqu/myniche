@@ -63,7 +63,7 @@ export default function OnboardingPage() {
     const goal = String(formData.get("creator_goal") ?? "").trim();
 
     if (!trimmedNiche) {
-      setError("Add your creator niche so MyNiche can tailor your planner.");
+      setError("Add your creator niche so ReelsDraft can tailor your planner.");
       return;
     }
 
@@ -96,7 +96,7 @@ export default function OnboardingPage() {
         <div className="theme-surface theme-elevated w-full rounded-2xl border p-8">
           <h1 className="text-3xl font-bold">Set up your creator profile</h1>
           <p className="theme-muted mt-2 text-sm">
-            Give MyNiche a few details, then the workspace tailors itself.
+            Give ReelsDraft a few details, then the workspace tailors itself.
           </p>
 
           <form

@@ -99,6 +99,14 @@ class SupabaseProfileService:
         return None
 
     @classmethod
+    def delete_profile(cls, user_id: int) -> None:
+        cls._request(
+            "DELETE",
+            cls.ENDPOINT,
+            params={"user_id": f"eq.{user_id}"},
+        )
+
+    @classmethod
     def get_profile_field(cls, user_id: int, field: str) -> Any:
         profile = cls.get_profile(user_id)
         if not profile:

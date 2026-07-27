@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/auth.store";
 import {
   changePassword,
   deleteAccount,
+  exportPersonalData,
   requestPasswordReset,
 } from "@/services/api/auth.api";
 import {
@@ -60,6 +61,8 @@ export default function SettingsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [isExportingData, setIsExportingData] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
   const requiresCurrentPassword = user?.has_usable_password ?? true;
 
   const {
@@ -137,7 +140,7 @@ export default function SettingsPage() {
     }
 
     const confirmed = window.confirm(
-      "Delete your MyNiche account and all related workspace data? This cannot be undone.",
+      "Delete your ReelsDraft account and all related workspace data? This cannot be undone.",
     );
 
     if (!confirmed) return;
@@ -152,6 +155,24 @@ export default function SettingsPage() {
     } catch (error) {
       setDeleteError(getErrorMessage(error));
       setIsDeletingAccount(false);
+    }
+  };
+
+  const onExportPersonalData = async () => {
+    setExportError(null);
+    setIsExportingData(true);
+    try {
+      const blob = await exportPersonalData();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "reelsdraft-personal-data.json";
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      setExportError(getErrorMessage(error));
+    } finally {
+      setIsExportingData(false);
     }
   };
 
@@ -259,6 +280,22 @@ export default function SettingsPage() {
                     : "Set password"}
               </button>
             </form>
+          </section>
+
+          <section className="theme-surface rounded-xl border p-5">
+            <h2 className="font-semibold">Your personal data</h2>
+            <p className="theme-muted mt-2 text-sm">
+              Download a portable copy of the account and workspace data we hold.
+            </p>
+            <button
+              type="button"
+              onClick={onExportPersonalData}
+              disabled={isExportingData}
+              className="theme-action-secondary mt-4 rounded-lg border px-4 py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isExportingData ? "Preparing export..." : "Download my data"}
+            </button>
+            {exportError && <p className="mt-3 text-sm text-red-500">{exportError}</p>}
           </section>
 
           <section className="theme-surface rounded-xl border p-5">

@@ -4,6 +4,7 @@ from .views import (
     SiteConfigurationView,
     SiteContentListView,
     SiteContentDetailView,
+    TermsOfServiceView,
 )
 
 urlpatterns = [
@@ -12,4 +13,5 @@ urlpatterns = [
     path("contents/", SiteContentListView.as_view(), name="site-content-list"),
     path("content/<slug:slug>/", SiteContentDetailView.as_view(),
          name="site-content-detail"),
+    path("terms/", TermsOfServiceView.as_view(), name="terms-of-service"),
 ]

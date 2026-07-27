@@ -35,5 +35,6 @@ class SiteConfigurationSerializer(serializers.ModelSerializer):
             "seo_keywords",
             "open_graph_image",
             "canonical_url",
+            "twitter_site",
             "updated_at",
         ]

@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.http import JsonResponse
 from django.contrib.auth import authenticate
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -17,10 +18,8 @@ from .serializers import (
 )
 from .services.google_auth import GoogleAuthService
 from .services.jwt_service import JWTService
+from .services.privacy import PrivacyService
 
-from dj_rest_auth.registration.views import SocialLoginView
-from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
-from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 
 
 class RegisterView(generics.CreateAPIView):
@@ -98,8 +97,23 @@ class MeView(APIView):
         return Response(UserSerializer(request.user).data)
 
     def delete(self, request):
-        request.user.delete()
+        try:
+            PrivacyService.erase_user_data(request.user)
+        except Exception:
+            return Response(
+                {"detail": "Account deletion could not be completed. Please try again or contact support."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class DataExportView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        response = JsonResponse(PrivacyService.export_user_data(request.user))
+        response["Content-Disposition"] = 'attachment; filename="reelsdraft-personal-data.json"'
+        return response
 
 
 class ProfileUpdateView(APIView):
@@ -212,7 +226,9 @@ class GoogleLoginView(APIView):
         try:
             user = GoogleAuthService.authenticate(
                 google_token,
-                settings.GOOGLE_CLIENT_ID
+                settings.GOOGLE_CLIENT_ID,
+                request.data.get("agreed_to_privacy") is True,
+                request.data.get("agreed_to_terms") is True,
             )
         except ValueError as exc:
             return Response(
@@ -232,12 +248,6 @@ class GoogleLoginView(APIView):
         return Response(
             auth_payload
         )
-
-
-class FacebookLoginView(SocialLoginView):
-    adapter_class = FacebookOAuth2Adapter
-    client_class = OAuth2Client
-    permission_classes = [AllowAny]
 
 
 class PlansView(APIView):

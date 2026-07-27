@@ -11,7 +11,7 @@ export default function DemoPage() {
         <div className="mx-auto max-w-6xl">
           <NicheForm
             mode="demo"
-            title="Try MyNiche for free"
+            title="Try ReelsDraft for free"
             description="Generate one sample script without creating an account."
           />
         </div>

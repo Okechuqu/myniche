@@ -4,6 +4,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.utils import timezone
 from rest_framework import serializers
 
 from .models import User
@@ -13,26 +14,37 @@ from .services.supabase_profile import SupabaseProfileService
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     agreed_to_privacy = serializers.BooleanField(write_only=True)
+    agreed_to_terms = serializers.BooleanField(write_only=True)
 
     class Meta:
         model = User
-        fields = ("email", "username", "password", "agreed_to_privacy")
+        fields = ("email", "username", "password", "agreed_to_privacy", "agreed_to_terms")
 
     def create(self, validated_data):
-        # Ensure agreement is present and truthy
-        agreed = validated_data.pop("agreed_to_privacy", False)
-        if not agreed:
+        agreed_privacy = validated_data.pop("agreed_to_privacy", False)
+        agreed_terms = validated_data.pop("agreed_to_terms", False)
+        if not agreed_privacy:
             raise serializers.ValidationError({
                 "agreed_to_privacy": "You must accept the privacy policy to register"
             })
+        if not agreed_terms:
+            raise serializers.ValidationError({
+                "agreed_to_terms": "You must accept the terms of service to register"
+            })
 
-        return User.objects.create_user(
+        user = User.objects.create_user(
             email=validated_data["email"],
             username=validated_data["username"],
             password=validated_data["password"],
             provider="email",
             agreed_to_privacy=True,
+            privacy_policy_version=settings.PRIVACY_POLICY_VERSION,
+            privacy_accepted_at=timezone.now(),
+            agreed_to_terms=True,
+            terms_version=settings.TERMS_VERSION,
+            terms_accepted_at=timezone.now(),
         )
+        return user
 
 
 class LoginSerializer(serializers.Serializer):
@@ -66,8 +78,15 @@ class UserSerializer(serializers.ModelSerializer):
 
     def _profile_data(self, user):
         if not hasattr(self, "_cached_profile"):
-            self._cached_profile = SupabaseProfileService.get_profile(user.id) or {
+            self._cached_profile = {
+                "niche": user.niche,
+                "main_platform": user.main_platform,
+                "creator_goal": user.creator_goal,
+                "avatar": user.avatar,
             }
+            self._cached_profile.update(
+                SupabaseProfileService.get_profile(user.id) or {}
+            )
         return self._cached_profile
 
     def get_niche(self, user):
@@ -215,11 +234,14 @@ class PasswordResetRequestSerializer(serializers.Serializer):
         )
 
         send_mail(
-            "Reset your MyNiche password",
+            "Reset your ReelsDraft password",
             (
-                "Use this link to reset your MyNiche password:\n\n"
+                "Use this link to reset your ReelsDraft password:\n\n"
                 f"{reset_url}\n\n"
-                "If you did not request this, you can ignore this email."
+                "If you did not request this, you can ignore this email.\n\n"
+                "This request was processed in accordance with our privacy policy. "
+                "If you have questions about data protection, contact "
+                f"{settings.PRIVACY_CONTACT_EMAIL}."
             ),
             settings.DEFAULT_FROM_EMAIL,
             [user.email],

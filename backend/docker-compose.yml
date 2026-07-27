@@ -12,7 +12,35 @@ services:
       - .env
     environment:
       POSTGRES_HOST: db
-      DATABASE_URL: postgres://myniche:myniche@db:5432/myniche
+      DATABASE_URL: postgres://reelsdraft:reelsdraft@db:5432/reelsdraft
+    depends_on:
+      - db
+      - redis
+
+  worker:
+    build: .
+    command: celery -A core worker --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+      DATABASE_URL: postgres://reelsdraft:reelsdraft@db:5432/reelsdraft
+    depends_on:
+      - db
+      - redis
+
+  beat:
+    build: .
+    command: celery -A core beat --loglevel=info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+      DATABASE_URL: postgres://reelsdraft:reelsdraft@db:5432/reelsdraft
     depends_on:
       - db
       - redis
@@ -20,9 +48,9 @@ services:
   db:
     image: postgres:16
     environment:
-      POSTGRES_DB: myniche
-      POSTGRES_USER: myniche
-      POSTGRES_PASSWORD: myniche
+      POSTGRES_DB: reelsdraft
+      POSTGRES_USER: reelsdraft
+      POSTGRES_PASSWORD: reelsdraft
     ports:
       - "5432:5432"
 

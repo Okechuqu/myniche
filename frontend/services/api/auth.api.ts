@@ -11,6 +11,7 @@ export interface RegisterPayload {
   username: string;
   password: string;
   agreed_to_privacy?: boolean;
+  agreed_to_terms?: boolean;
 }
 
 export interface AuthResponse {
@@ -75,19 +76,19 @@ export const me = async () => {
   return response.data;
 };
 
-export const googleLogin = async (payload: { token: string }) => {
+export const googleLogin = async (payload: {
+  token: string;
+  agreed_to_privacy: boolean;
+  agreed_to_terms: boolean;
+}) => {
   const response = await api.post<AuthResponse>("/accounts/social/google/", {
     id_token: payload.token,
+    agreed_to_privacy: payload.agreed_to_privacy,
+    agreed_to_terms: payload.agreed_to_terms,
   });
   return response.data;
 };
 
-export const facebookLogin = async (payload: { token: string }) => {
-  const response = await api.post<AuthResponse>("/accounts/social/facebook/", {
-    access_token: payload.token,
-  });
-  return response.data;
-};
 
 export const changePassword = async (payload: PasswordChangePayload) => {
   const response = await api.post<PasswordChangeResponse>(
@@ -124,4 +125,21 @@ export const updateProfile = async (payload: ProfileUpdatePayload) => {
 
 export const deleteAccount = async () => {
   await api.delete("/accounts/me/");
+};
+
+export const exportPersonalData = async () => {
+  const response = await api.get("/accounts/me/export/", {
+    responseType: "blob",
+  });
+  return response.data as Blob;
+};
+
+export const recordCookieConsent = async (
+  accepted: boolean,
+  anonymousId: string,
+) => {
+  await api.post("/common/cookie-consent/", {
+    accepted,
+    anonymous_id: anonymousId,
+  });
 };

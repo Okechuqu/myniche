@@ -29,6 +29,7 @@ interface AuthState {
   }) => void;
   setUser: (user: AuthUser) => void;
   clearSession: () => void;
+  setAccess: (access: string | null) => void;
   setHasHydrated: (hydrated: boolean) => void;
 }
 
@@ -40,9 +41,10 @@ const setAccessCookie = (access: string) => {
     return;
   }
 
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
   document.cookie = `${ACCESS_COOKIE_NAME}=${encodeURIComponent(
     access,
-  )}; Path=/; Max-Age=${ACCESS_COOKIE_MAX_AGE}; SameSite=Lax`;
+  )}; Path=/; Max-Age=${ACCESS_COOKIE_MAX_AGE}; SameSite=Lax${secure}`;
 };
 
 const clearAccessCookie = () => {
@@ -50,7 +52,21 @@ const clearAccessCookie = () => {
     return;
   }
 
-  document.cookie = `${ACCESS_COOKIE_NAME}=; Path=/; Max-Age=0; SameSite=Lax`;
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${ACCESS_COOKIE_NAME}=; Path=/; Max-Age=0; SameSite=Lax${secure}`;
+};
+
+const getAccessCookie = () => {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  const cookie = document.cookie
+    .split(";")
+    .map((value) => value.trim())
+    .find((value) => value.startsWith(`${ACCESS_COOKIE_NAME}=`));
+
+  return cookie ? decodeURIComponent(cookie.slice(ACCESS_COOKIE_NAME.length + 1)) : null;
 };
 
 const storage = () => {
@@ -64,28 +80,6 @@ const storage = () => {
 
   return window.localStorage;
 };
-
-const migrateLegacySessionStorage = () => {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  try {
-    const legacyValue = window.sessionStorage.getItem("myniche-auth");
-    if (!legacyValue) {
-      return;
-    }
-
-    const hasLocalValue = window.localStorage.getItem("myniche-auth");
-    if (!hasLocalValue) {
-      window.localStorage.setItem("myniche-auth", legacyValue);
-    }
-  } catch {
-    // ignore if storage is unavailable
-  }
-};
-
-migrateLegacySessionStorage();
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -131,22 +125,22 @@ export const useAuthStore = create<AuthState>()(
           user: null,
         });
       },
+
+      setAccess: (access) =>
+        set({
+          access,
+        }),
     }),
     {
-      name: "myniche-auth",
+      name: "reelsdraft-auth",
+      version: 2,
       storage: createJSONStorage(storage),
       partialize: (state) => ({
-        access: state.access,
-        refresh: state.refresh,
         user: state.user,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
-        if (state?.access) {
-          setAccessCookie(state.access);
-        } else {
-          clearAccessCookie();
-        }
+        state?.setAccess(getAccessCookie());
       },
     },
   ),

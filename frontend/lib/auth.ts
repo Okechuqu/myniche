@@ -8,9 +8,10 @@ const setAccessCookie = (access: string) => {
     return;
   }
 
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
   document.cookie = `${ACCESS_COOKIE_NAME}=${encodeURIComponent(
     access,
-  )}; Path=/; Max-Age=${ACCESS_COOKIE_MAX_AGE}; SameSite=Lax`;
+  )}; Path=/; Max-Age=${ACCESS_COOKIE_MAX_AGE}; SameSite=Lax${secure}`;
 };
 
 const clearAccessCookie = () => {
@@ -18,12 +19,11 @@ const clearAccessCookie = () => {
     return;
   }
 
-  document.cookie = `${ACCESS_COOKIE_NAME}=; Path=/; Max-Age=0; SameSite=Lax`;
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${ACCESS_COOKIE_NAME}=; Path=/; Max-Age=0; SameSite=Lax${secure}`;
 };
 
 export const setTokens = (access: string, refresh: string) => {
-  localStorage.setItem("access", access);
-  localStorage.setItem("refresh", refresh);
   setAccessCookie(access);
 
   // also update zustand store
@@ -35,8 +35,6 @@ export const setTokens = (access: string, refresh: string) => {
 };
 
 export const clearTokens = () => {
-  localStorage.removeItem("access");
-  localStorage.removeItem("refresh");
   clearAccessCookie();
 
   try {
@@ -46,6 +44,4 @@ export const clearTokens = () => {
   }
 };
 
-export const getAccessToken = () => {
-  return localStorage.getItem("access");
-};
+export const getAccessToken = () => useAuthStore.getState().access;

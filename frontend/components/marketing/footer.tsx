@@ -43,6 +43,7 @@ const defaultFooterGroups: FooterGroup[] = [
     links: [
       { label: "Resources", href: "/resources" },
       { label: "Privacy Policy", href: "/privacy" },
+      { label: "Terms of Service", href: "/terms" },
     ],
   },
 ];
@@ -89,7 +90,7 @@ export default function Footer({
               Build sharper ideas before the feed moves on.
             </h3>
             <p className="theme-muted mt-4 max-w-xl text-sm leading-6 sm:mt-5 sm:text-base sm:leading-7">
-              MyNiche connects scripts, planning, and creator intelligence into
+              ReelsDraft connects scripts, planning, and creator intelligence into
               one responsive workspace for faster content decisions.
             </p>
 
@@ -172,13 +173,13 @@ export default function Footer({
         <div className="theme-muted mt-6 flex flex-col items-center justify-between gap-2 pt-4 text-center text-xs sm:flex-row sm:items-center sm:pt-6 sm:text-left sm:text-sm">
           <div className="flex items-center justify-center gap-2 text-sm sm:justify-start">
             <p>
-              © {new Date().getFullYear()} MyNiche. Crafted for ambitious
+              © {new Date().getFullYear()} ReelsDraft. Crafted for ambitious
               creators.
             </p>
           </div>
           <div className="ml-4 flex flex-col text-xs">
             <span>
-              Email: {siteConfig?.contact_email ?? "support@myniche.example"}
+              Email: {siteConfig?.contact_email ?? "support@reelsdraft.example"}
             </span>
             <span>
               Phone: {siteConfig?.contact_phone ?? "+1 (555) 123-4567"}

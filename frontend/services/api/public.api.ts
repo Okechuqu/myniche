@@ -12,6 +12,7 @@ export interface SiteConfiguration {
   seo_keywords: string;
   open_graph_image: string;
   canonical_url: string;
+  twitter_site?: string;
   updated_at: string;
 }
 
@@ -26,6 +27,17 @@ export interface SiteContent {
   is_published: boolean;
   sort_order: number;
   updated_at: string;
+}
+
+export interface TermsOfService {
+  version: string;
+  title: string;
+  summary: string;
+  sections: Array<{
+    id: string;
+    title: string;
+    body: string;
+  }>;
 }
 
 export const getSiteConfiguration = async () => {
@@ -55,5 +67,10 @@ export const getSiteContents = async (params?: {
 
 export const getSiteContentBySlug = async (slug: string) => {
   const response = await api.get<SiteContent>(`/public/content/${slug}/`);
+  return response.data;
+};
+
+export const getTermsOfService = async () => {
+  const response = await api.get<TermsOfService>("/public/terms/");
   return response.data;
 };
