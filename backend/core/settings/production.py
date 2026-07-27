@@ -17,5 +17,6 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://reelsdraft.vercel.app",
+    "https://myniche-six.vercel.app",
+    "https://myniche.onrender.com",
 ]

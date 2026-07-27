@@ -197,7 +197,7 @@ export default function Hero({
                   </span>
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold">
-                      Niche command deck
+                      Reels command deck
                     </p>
                     <p className="theme-muted text-xs">
                       Cycle {activeIndex + 1} of {slides.length}
