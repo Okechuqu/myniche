@@ -278,8 +278,19 @@ SOCIALACCOUNT_PROVIDERS = {
     },
 }
 
-CORS_ALLOWED_ORIGINS = config(
-    'CORS_ALLOWED_ORIGINS', default="http://localhost:3000").split(',')
+def csv_setting(name, default=""):
+    """Return a clean list from a comma-separated environment setting."""
+    return [
+        value.strip().rstrip("/")
+        for value in config(name, default=default).split(",")
+        if value.strip()
+    ]
+
+
+CORS_ALLOWED_ORIGINS = csv_setting(
+    "CORS_ALLOWED_ORIGINS",
+    default="http://localhost:3000",
+)
 
 CELERY_BROKER_URL = config(
     "CELERY_BROKER_URL", default="redis://localhost:6379/0")

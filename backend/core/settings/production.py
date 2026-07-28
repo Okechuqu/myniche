@@ -16,7 +16,20 @@ SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://myniche-six.vercel.app",
-    "https://myniche.onrender.com",
-]
+PRODUCTION_FRONTEND_ORIGIN = "https://myniche-six.vercel.app"
+PRODUCTION_API_ORIGIN = "https://myniche.onrender.com"
+
+# Keep the deployed frontend allowed even when Render still has an older
+# CORS_ALLOWED_ORIGINS value (for example, the local-development default).
+CORS_ALLOWED_ORIGINS = list(dict.fromkeys([
+    *CORS_ALLOWED_ORIGINS,
+    FRONTEND_URL,
+    PRODUCTION_FRONTEND_ORIGIN,
+]))
+
+CSRF_TRUSTED_ORIGINS = list(dict.fromkeys([
+    *csv_setting("CSRF_TRUSTED_ORIGINS"),
+    FRONTEND_URL,
+    PRODUCTION_FRONTEND_ORIGIN,
+    PRODUCTION_API_ORIGIN,
+]))
