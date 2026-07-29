@@ -1,59 +1,49 @@
-"use client";
-
 import Link from "next/link";
 import PublicNavbar from "@/components/layout/public-navbar";
 import Footer from "@/components/marketing/footer";
-import { useQuery } from "@tanstack/react-query";
-import { getPlans } from "@/services/api/plans.api";
 
-const defaultPlans = [
+const plans = [
   {
     title: "Free",
     price: "$0/mo",
-    description: "Start with a limited creator workspace.",
+    description: "Everything currently available in ReelsDraft.",
     features: [
       "20 scripts / month",
-      "1 seat (individual)",
+      "Individual creator workspace",
+      "Script history",
+      "Content planner",
       "Standard support",
-      "Basic planner & analytics",
     ],
     accent: true,
+    available: true,
   },
   {
     title: "Creator",
-    price: "$19/mo",
-    description: "Unlimited scripts, planner, and pro workflows.",
+    price: "Upcoming",
+    description: "A planned upgrade for creators who need more capacity.",
     features: [
-      "Unlimited scripts",
-      "Up to 5 seats",
-      "Priority support",
-      "Advanced planner & workflow automations",
+      "Higher monthly script allowance",
+      "Enhanced planning workflows",
+      "Priority support options",
     ],
     accent: false,
+    available: false,
   },
   {
     title: "Agency",
-    price: "$49/mo",
-    description: "Team collaboration, analytics, and growth tools.",
+    price: "Upcoming",
+    description: "Team and agency capabilities are still in development.",
     features: [
-      "Unlimited scripts & seats",
-      "Team workspace & roles",
-      "Advanced analytics",
-      "White-labeling & SSO",
+      "Team workspace",
+      "Shared content operations",
+      "Agency administration",
     ],
     accent: false,
+    available: false,
   },
 ];
 
 export default function PricingPage() {
-  const { data } = useQuery({
-    queryKey: ["plans"],
-    queryFn: getPlans,
-    staleTime: 60 * 1000,
-  });
-
-  const plans = data ?? defaultPlans;
-
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <PublicNavbar />
@@ -62,11 +52,12 @@ export default function PricingPage() {
         <div className="mx-auto max-w-6xl">
           <h1 className="text-4xl font-bold">Pricing</h1>
           <p className="theme-muted mt-3 max-w-2xl">
-            Simple pricing that scales with creators and teams.
+            Start free today. Paid plans will launch when their features are
+            ready.
           </p>
 
           <div className="mt-10 grid gap-6 sm:grid-cols-3">
-            {plans.map((plan: any) => (
+            {plans.map((plan) => (
               <div
                 key={plan.title}
                 className={`rounded-[1.5rem] border p-6 ${plan.accent ? "theme-surface theme-accent-border" : "theme-surface-soft"}`}
@@ -78,7 +69,9 @@ export default function PricingPage() {
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-semibold">{plan.price}</div>
-                    <div className="theme-muted text-xs">Billed monthly</div>
+                    <div className="theme-muted text-xs">
+                      {plan.available ? "Free to use" : "Not yet available"}
+                    </div>
                   </div>
                 </div>
 
@@ -93,16 +86,10 @@ export default function PricingPage() {
 
                 <div className="mt-6">
                   <Link
-                    href={
-                      plan.title === "Free"
-                        ? "/(auth)/register"
-                        : `/pricing?plan=${plan.title.toLowerCase()}`
-                    }
+                    href="/register"
                     className={`inline-flex w-full items-center justify-center rounded-3xl px-5 py-3 text-sm font-semibold ${plan.accent ? "bg-linear-to-r from-[#d4af37] via-[#3b82f6] to-[#05070b] text-white" : "theme-action-secondary border"}`}
                   >
-                    {plan.title === "Free"
-                      ? "Get Free"
-                      : `Choose ${plan.title}`}
+                    {plan.available ? "Create free account" : "Start with Free"}
                   </Link>
                 </div>
               </div>

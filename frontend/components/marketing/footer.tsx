@@ -6,8 +6,12 @@ import {
   getSiteConfiguration,
   SiteConfiguration,
 } from "@/services/api/public.api";
-import { ArrowRight, Bot, Cpu, RadioTower, Sparkles } from "lucide-react";
+import { ArrowRight, Bot, Cpu, RadioTower } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
+import {
+  publicContactEmail,
+  publicContactPhone,
+} from "@/lib/site-contact";
 
 interface FooterLink {
   label: string;
@@ -65,6 +69,8 @@ export default function Footer({
   const isAuthenticated = Boolean(user || access);
   const ctaHref = isAuthenticated ? "/dashboard" : "/register";
   const [siteConfig, setSiteConfig] = useState<SiteConfiguration | null>(null);
+  const contactEmail = publicContactEmail(siteConfig?.contact_email);
+  const contactPhone = publicContactPhone(siteConfig?.contact_phone);
 
   useEffect(() => {
     let mounted = true;
@@ -90,8 +96,8 @@ export default function Footer({
               Build sharper ideas before the feed moves on.
             </h3>
             <p className="theme-muted mt-4 max-w-xl text-sm leading-6 sm:mt-5 sm:text-base sm:leading-7">
-              ReelsDraft connects scripts, planning, and creator intelligence into
-              one responsive workspace for faster content decisions.
+              ReelsDraft connects scripts, planning, and creator intelligence
+              into one responsive workspace for faster content decisions.
             </p>
 
             <div className="mt-6 grid gap-2 sm:mt-8 sm:grid-cols-3 sm:gap-3">
@@ -177,15 +183,34 @@ export default function Footer({
               creators.
             </p>
           </div>
-          <div className="ml-4 flex flex-col text-xs">
-            <span>
-              Email: {siteConfig?.contact_email ?? "support@reelsdraft.example"}
-            </span>
-            <span>
-              Phone: {siteConfig?.contact_phone ?? "+1 (555) 123-4567"}
-            </span>
-          </div>
-          <p className="uppercase">Content systems online</p>
+          {(contactEmail || contactPhone) && (
+            <address className="flex flex-col text-xs not-italic">
+              {contactEmail && (
+                <a href={`mailto:${contactEmail}`} className="hover:text-[var(--accent)]">
+                  Email: {contactEmail}
+                </a>
+              )}
+              {contactPhone && (
+                <a
+                  href={`tel:${contactPhone.replace(/[^\d+]/g, "")}`}
+                  className="hover:text-[var(--accent)]"
+                >
+                  Phone: {contactPhone}
+                </a>
+              )}
+            </address>
+          )}
+          <p className="uppercase">
+            developed by{" "}
+            <a
+              href="https://okechuqu.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#d4af37] hover:underline"
+            >
+              Okechuqu
+            </a>{" "}
+          </p>
         </div>
       </div>
     </footer>

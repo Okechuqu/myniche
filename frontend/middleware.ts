@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PROTECTED_ROUTES = ["/dashboard", "/scripts", "/planner", "/settings"];
+const PROTECTED_ROUTES = [
+  "/dashboard",
+  "/scripts",
+  "/planner",
+  "/profile",
+  "/settings",
+];
 
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -28,6 +34,7 @@ export const config = {
     "/dashboard/:path*",
     "/scripts/:path*",
     "/planner/:path*",
+    "/profile/:path*",
     "/settings/:path*",
   ],
 };

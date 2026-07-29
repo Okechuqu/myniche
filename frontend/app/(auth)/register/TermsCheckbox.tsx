@@ -41,9 +41,6 @@ export default function TermsCheckbox({
           </Link>
           .
         </span>
-        <span>
-          Read our terms before registering.
-        </span>
       </div>
       <input
         id={id}

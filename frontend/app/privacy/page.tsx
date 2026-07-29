@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import PublicNavbar from "@/components/layout/public-navbar";
 import Footer from "@/components/marketing/footer";
+import { publicContactEmail } from "@/lib/site-contact";
 import {
   getSiteContentBySlug,
   getSiteConfiguration,
@@ -141,6 +142,7 @@ const quickFacts = [
 export default function PrivacyPage() {
   const [remoteContent, setRemoteContent] = useState<SiteContent | null>(null);
   const [siteConfig, setSiteConfig] = useState<SiteConfiguration | null>(null);
+  const contactEmail = publicContactEmail(siteConfig?.contact_email);
 
   useEffect(() => {
     let mounted = true;
@@ -271,11 +273,23 @@ export default function PrivacyPage() {
                       Questions about your data
                     </h2>
                     <p className="theme-muted mt-3 text-sm leading-6">
-                      For privacy questions, contact the ReelsDraft team at{" "}
-                      <span className="font-semibold text-[var(--foreground)]">
-                        {siteConfig?.contact_email || "support@reelsdraft.example"}
-                      </span>
-                      .
+                      {contactEmail ? (
+                        <>
+                          For privacy questions, contact the ReelsDraft team at{" "}
+                          <a
+                            href={`mailto:${contactEmail}`}
+                            className="font-semibold text-[var(--accent)] hover:underline"
+                          >
+                            {contactEmail}
+                          </a>
+                          .
+                        </>
+                      ) : (
+                        <>
+                          The public privacy contact is being updated. Please
+                          check this page again before submitting a data request.
+                        </>
+                      )}
                     </p>
                   </div>
                 </div>

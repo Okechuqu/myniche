@@ -1,10 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { QueryProvider } from "@/providers/query-provider";
 import { ToastProvider } from "@/providers/toast-provider";
 import ThemeProvider from "@/providers/theme-provider";
 import CookieConsent from "@/components/shared/cookie-consent";
+import PwaInstaller from "@/components/shared/pwa-installer";
 
 export const dynamic = "force-dynamic";
 
@@ -28,10 +29,35 @@ const fallbackMetadata: Metadata = {
   },
   description: "AI Creator Operating System",
   applicationName: "ReelsDraft",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "ReelsDraft",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: [
+      { url: "/icons/reelsdraft-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/reelsdraft-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
   robots: {
     index: true,
     follow: true,
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#05070b",
 };
 
 async function fetchSiteConfiguration(): Promise<Metadata> {
@@ -127,6 +153,7 @@ export default function RootLayout({
           </QueryProvider>
         </ThemeProvider>
         <CookieConsent />
+        <PwaInstaller />
       </body>
     </html>
   );

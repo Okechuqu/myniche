@@ -42,11 +42,13 @@ export default function GoogleButton({
   requirePrivacyAcceptance = false,
   agreedToTerms = false,
   requireTermsAcceptance = false,
+  hoverText,
 }: {
   agreedToPrivacy?: boolean;
   requirePrivacyAcceptance?: boolean;
   agreedToTerms?: boolean;
   requireTermsAcceptance?: boolean;
+  hoverText?: string;
 }) {
   const router = useRouter();
   const setSession = useAuthStore((s) => s.setSession);
@@ -78,10 +80,14 @@ export default function GoogleButton({
 
       try {
         if (requirePrivacyAcceptance && !privacyAcceptedRef.current) {
-          throw new Error("Accept the privacy policy before creating an account.");
+          throw new Error(
+            "Accept the privacy policy before creating an account.",
+          );
         }
         if (requireTermsAcceptance && !termsAcceptedRef.current) {
-          throw new Error("Accept the terms of service before creating an account.");
+          throw new Error(
+            "Accept the terms of service before creating an account.",
+          );
         }
         const auth = await googleLogin({
           token: response.credential,
@@ -144,42 +150,54 @@ export default function GoogleButton({
   };
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      disabled={
-        !ready ||
-        (requirePrivacyAcceptance && !agreedToPrivacy) ||
-        (requireTermsAcceptance && !agreedToTerms)
-      }
-      id="google-btn"
-      className="theme-action-secondary inline-flex w-full items-center justify-center gap-3 rounded-lg border px-4 py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-60"
-    >
-      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white">
-        <svg
-          viewBox="0 0 24 24"
-          className="h-4 w-4"
-          xmlns="http://www.w3.org/2000/svg"
+    <div className="group relative">
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={
+          !ready ||
+          (requirePrivacyAcceptance && !agreedToPrivacy) ||
+          (requireTermsAcceptance && !agreedToTerms)
+        }
+        id="google-btn"
+        aria-describedby={hoverText ? "google-button-tooltip" : undefined}
+        className="theme-action-secondary inline-flex w-full items-center justify-center gap-3 rounded-lg border px-4 py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white">
+          <svg
+            viewBox="0 0 24 24"
+            className="h-4 w-4"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M21.35 11.1H12v2.8h5.7c-.25 1.5-1.5 3.5-5.7 3.5-3.4 0-6.2-2.8-6.2-6.2s2.8-6.2 6.2-6.2c1.9 0 3.2.8 3.9 1.5l2.7-2.7C17.95 2.7 15.2 1.2 12 1.2 6.1 1.2 1.2 6.1 1.2 12S6.1 22.8 12 22.8c6 0 9.7-4.2 9.7-10.2 0-.7-.1-1.2-.35-1.5z"
+              fill="#4285F4"
+            />
+            <path
+              d="M3.52 7.7l2.5 1.8c.7-1.5 2.2-2.7 4.3-2.7 1.4 0 2.6.5 3.4 1.4l2.5-2.5C13.6 4.3 12 3.7 10 3.7 6.5 3.7 3.5 5.9 3.5 7.7z"
+              fill="#34A853"
+            />
+            <path
+              d="M12 21.3c2.4 0 4.4-.8 5.9-2.2l-2.8-2.3c-.8.5-1.8.8-3.1.8-2.4 0-4.4-1.6-5.1-3.9l-2.5 1.9C5.5 19.8 8.5 21.3 12 21.3z"
+              fill="#FBBC05"
+            />
+            <path
+              d="M21.35 11.1H12v2.8h5.7c-.2 1.1-.8 2.1-1.7 2.8l2.8 2.3C20.6 17.6 22 14.8 22 12 22 11.3 21.8 10.5 21.35 11.1z"
+              fill="#EA4335"
+            />
+          </svg>
+        </span>
+        Google
+      </button>
+      {hoverText && (
+        <span
+          id="google-button-tooltip"
+          role="tooltip"
+          className="pointer-events-none absolute bottom-[calc(100%+0.6rem)] left-1/2 z-20 w-max max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-lg bg-[var(--foreground)] px-3 py-2 text-center text-xs font-medium text-[var(--background)] opacity-0 shadow-lg transition duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
         >
-          <path
-            d="M21.35 11.1H12v2.8h5.7c-.25 1.5-1.5 3.5-5.7 3.5-3.4 0-6.2-2.8-6.2-6.2s2.8-6.2 6.2-6.2c1.9 0 3.2.8 3.9 1.5l2.7-2.7C17.95 2.7 15.2 1.2 12 1.2 6.1 1.2 1.2 6.1 1.2 12S6.1 22.8 12 22.8c6 0 9.7-4.2 9.7-10.2 0-.7-.1-1.2-.35-1.5z"
-            fill="#4285F4"
-          />
-          <path
-            d="M3.52 7.7l2.5 1.8c.7-1.5 2.2-2.7 4.3-2.7 1.4 0 2.6.5 3.4 1.4l2.5-2.5C13.6 4.3 12 3.7 10 3.7 6.5 3.7 3.5 5.9 3.5 7.7z"
-            fill="#34A853"
-          />
-          <path
-            d="M12 21.3c2.4 0 4.4-.8 5.9-2.2l-2.8-2.3c-.8.5-1.8.8-3.1.8-2.4 0-4.4-1.6-5.1-3.9l-2.5 1.9C5.5 19.8 8.5 21.3 12 21.3z"
-            fill="#FBBC05"
-          />
-          <path
-            d="M21.35 11.1H12v2.8h5.7c-.2 1.1-.8 2.1-1.7 2.8l2.8 2.3C20.6 17.6 22 14.8 22 12 22 11.3 21.8 10.5 21.35 11.1z"
-            fill="#EA4335"
-          />
-        </svg>
-      </span>
-      Continue with Google
-    </button>
+          {hoverText}
+        </span>
+      )}
+    </div>
   );
 }

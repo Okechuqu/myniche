@@ -22,7 +22,8 @@ const resourceCards = [
       "Set your niche, content pillars, and first repeatable publishing rhythm.",
     category: "Foundation",
     duration: "12 min",
-    status: "Start here",
+    status: "Coming soon",
+    href: null,
     Icon: BookOpen,
   },
   {
@@ -31,7 +32,8 @@ const resourceCards = [
       "Use hooks, story arcs, and call-to-action patterns that fit short-form and long-form content.",
     category: "Writing",
     duration: "9 min",
-    status: "Template pack",
+    status: "Coming soon",
+    href: null,
     Icon: FileText,
   },
   {
@@ -40,7 +42,8 @@ const resourceCards = [
       "Map ideas into a weekly schedule so your planner turns into a real production system.",
     category: "Planning",
     duration: "10 min",
-    status: "Planner ready",
+    status: "Coming soon",
+    href: null,
     Icon: CalendarDays,
   },
   {
@@ -50,6 +53,7 @@ const resourceCards = [
     category: "Tools",
     duration: "7 min",
     status: "Curated",
+    href: "/tools",
     Icon: Wrench,
   },
 ];
@@ -115,7 +119,7 @@ export default function ResourcesPage() {
 
           <div className="mt-12 grid gap-4 md:grid-cols-2">
             {resourceCards.map(
-              ({ title, description, category, duration, status, Icon }) => (
+              ({ title, description, category, duration, status, href, Icon }) => (
                 <article
                   key={title}
                   className="group relative overflow-hidden rounded-lg bg-[var(--surface-soft)] p-5 shadow-[0_24px_70px_-50px_rgba(212,175,55,0.75)] backdrop-blur transition hover:-translate-y-1"
@@ -126,7 +130,13 @@ export default function ResourcesPage() {
                     <div className="theme-icon-tile flex h-11 w-11 shrink-0 items-center justify-center rounded-lg">
                       <Icon size={19} />
                     </div>
-                    <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-500">
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                        href
+                          ? "bg-emerald-500/10 text-emerald-500"
+                          : "bg-amber-500/10 text-amber-500"
+                      }`}
+                    >
                       {status}
                     </span>
                   </div>
@@ -144,13 +154,23 @@ export default function ResourcesPage() {
                   </div>
 
                   <div className="relative mt-6 flex items-center justify-between gap-3">
-                    <span className="theme-muted text-xs uppercase">
-                      Resource brief
-                    </span>
-                    <ArrowRight
-                      size={18}
-                      className="text-[var(--accent)] transition group-hover:translate-x-1"
-                    />
+                    {href ? (
+                      <Link
+                        href={href}
+                        className="flex w-full items-center justify-between text-xs font-semibold uppercase text-[var(--accent)] after:absolute after:inset-0"
+                        aria-label={`Open ${title}`}
+                      >
+                        Open directory
+                        <ArrowRight
+                          size={18}
+                          className="transition group-hover:translate-x-1"
+                        />
+                      </Link>
+                    ) : (
+                      <span className="theme-muted text-xs font-medium uppercase">
+                        Not yet published
+                      </span>
+                    )}
                   </div>
                 </article>
               ),

@@ -41,9 +41,6 @@ export default function PrivacyCheckbox({
           </Link>
           .
         </span>
-        <span>
-          Read our privacy policy before registering.
-        </span>
       </div>
       <input
         id={id}
