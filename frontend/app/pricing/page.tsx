@@ -1,6 +1,6 @@
-import Link from "next/link";
 import PublicNavbar from "@/components/layout/public-navbar";
 import Footer from "@/components/marketing/footer";
+import PricingCta from "@/components/pricing/pricing-cta";
 
 const plans = [
   {
@@ -85,12 +85,10 @@ export default function PricingPage() {
                 </ul>
 
                 <div className="mt-6">
-                  <Link
-                    href="/register"
-                    className={`inline-flex w-full items-center justify-center rounded-3xl px-5 py-3 text-sm font-semibold ${plan.accent ? "bg-linear-to-r from-[#d4af37] via-[#3b82f6] to-[#05070b] text-white" : "theme-action-secondary border"}`}
-                  >
-                    {plan.available ? "Create free account" : "Start with Free"}
-                  </Link>
+                  <PricingCta
+                    available={plan.available}
+                    accent={plan.accent}
+                  />
                 </div>
               </div>
             ))}
