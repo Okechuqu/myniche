@@ -16,7 +16,7 @@ from .serializers import (
     RegisterSerializer,
     UserSerializer,
 )
-from .services.google_auth import GoogleAuthService
+from .services.google_auth import GoogleAuthService, GoogleConsentRequired
 from .services.jwt_service import JWTService
 from .services.privacy import PrivacyService
 
@@ -229,6 +229,14 @@ class GoogleLoginView(APIView):
                 settings.GOOGLE_CLIENT_ID,
                 request.data.get("agreed_to_privacy") is True,
                 request.data.get("agreed_to_terms") is True,
+            )
+        except GoogleConsentRequired:
+            return Response(
+                {
+                    "code": "google_consent_required",
+                    "detail": "Create your account first to continue with Google.",
+                },
+                status=status.HTTP_400_BAD_REQUEST
             )
         except ValueError as exc:
             return Response(

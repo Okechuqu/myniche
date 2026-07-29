@@ -8,6 +8,10 @@ from django.utils import timezone
 from apps.accounts.models import User
 
 
+class GoogleConsentRequired(ValueError):
+    """Raised when Google authentication would create a new user."""
+
+
 class GoogleAuthService:
 
     @staticmethod
@@ -84,10 +88,14 @@ class GoogleAuthService:
             return user
 
         if not agreed_to_privacy:
-            raise ValueError("You must accept the privacy policy to create an account")
+            raise GoogleConsentRequired(
+                "Create an account and accept the privacy policy to continue"
+            )
 
         if not agreed_to_terms:
-            raise ValueError("You must accept the terms of service to create an account")
+            raise GoogleConsentRequired(
+                "Create an account and accept the terms of service to continue"
+            )
 
         user = User.objects.create_user(
             email=email,

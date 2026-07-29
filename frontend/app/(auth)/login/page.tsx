@@ -1,6 +1,5 @@
 "use client";
 
-import { isAxiosError } from "axios";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLogin } from "@/features/auth/hooks/use-login";
@@ -11,40 +10,14 @@ import {
   CalendarDays,
   Home,
   Sparkles,
-  WandSparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import GoogleButton from "@/components/auth/google-button";
+import { getApiErrorMessage } from "@/lib/api-error";
 
 const getErrorMessage = (error: unknown) => {
-  if (!error) return "Login failed";
-
-  if (isAxiosError(error) && error.response?.data) {
-    const data = error.response.data;
-    if (typeof data === "string") {
-      // Avoid rendering raw HTML error pages returned by the backend
-      if (data.trim().startsWith("<")) {
-        return `Please wait while we fix this(${error.response.status}), you can mail us to get faster support.`;
-      }
-      return data;
-    }
-    if (typeof data === "object" && data !== null) {
-      return Object.entries(data)
-        .map(([key, value]) =>
-          Array.isArray(value)
-            ? `${key}: ${value.join(", ")}`
-            : `${key}: ${value}`,
-        )
-        .join(" \n");
-    }
-  }
-
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return "Login failed";
+  return getApiErrorMessage(error, "Login failed. Please try again.");
 };
 
 export default function LoginPage() {

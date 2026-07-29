@@ -1,6 +1,5 @@
 "use client";
 
-import { isAxiosError } from "axios";
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import { useAuthStore } from "@/store/auth.store";
 import {
@@ -20,32 +19,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2, Trash2 } from "lucide-react";
 import { clearTokens } from "@/lib/auth";
-
-const getErrorMessage = (error: unknown) => {
-  if (isAxiosError(error) && error.response?.data) {
-    const data = error.response.data;
-
-    if (typeof data === "string") {
-      return data;
-    }
-
-    if (typeof data === "object" && data !== null) {
-      return Object.entries(data)
-        .map(([key, value]) =>
-          Array.isArray(value)
-            ? `${key}: ${value.join(", ")}`
-            : `${key}: ${String(value)}`,
-        )
-        .join(" \n");
-    }
-  }
-
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return "Password update failed";
-};
+import { getApiErrorMessage } from "@/lib/api-error";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -103,7 +77,9 @@ export default function SettingsPage() {
       setPasswordMessage(response.detail);
       reset();
     } catch (error) {
-      setPasswordError(getErrorMessage(error));
+      setPasswordError(
+        getApiErrorMessage(error, "Password update failed. Please try again."),
+      );
     } finally {
       setIsPasswordSubmitting(false);
     }
@@ -127,7 +103,12 @@ export default function SettingsPage() {
       setResetMessage(response.detail);
       setResetUrl(response.reset_url ?? null);
     } catch (error) {
-      setResetError(getErrorMessage(error));
+      setResetError(
+        getApiErrorMessage(
+          error,
+          "Password reset request failed. Please try again.",
+        ),
+      );
     } finally {
       setIsResetSubmitting(false);
     }
@@ -153,7 +134,12 @@ export default function SettingsPage() {
       clearTokens();
       router.replace("/");
     } catch (error) {
-      setDeleteError(getErrorMessage(error));
+      setDeleteError(
+        getApiErrorMessage(
+          error,
+          "Account deletion failed. Please try again.",
+        ),
+      );
       setIsDeletingAccount(false);
     }
   };
@@ -170,7 +156,9 @@ export default function SettingsPage() {
       link.click();
       URL.revokeObjectURL(url);
     } catch (error) {
-      setExportError(getErrorMessage(error));
+      setExportError(
+        getApiErrorMessage(error, "Data export failed. Please try again."),
+      );
     } finally {
       setIsExportingData(false);
     }

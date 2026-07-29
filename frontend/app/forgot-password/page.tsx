@@ -1,6 +1,5 @@
 "use client";
 
-import { isAxiosError } from "axios";
 import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -10,32 +9,7 @@ import {
   type PasswordResetRequestInput,
 } from "@/lib/validations/auth";
 import { requestPasswordReset } from "@/services/api/auth.api";
-
-const getErrorMessage = (error: unknown) => {
-  if (isAxiosError(error) && error.response?.data) {
-    const data = error.response.data;
-
-    if (typeof data === "string") {
-      return data;
-    }
-
-    if (typeof data === "object" && data !== null) {
-      return Object.entries(data)
-        .map(([key, value]) =>
-          Array.isArray(value)
-            ? `${key}: ${value.join(", ")}`
-            : `${key}: ${String(value)}`,
-        )
-        .join(" \n");
-    }
-  }
-
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return "We are unable to process your Password reset request at this time. Please try again later.";
-};
+import { getApiErrorMessage } from "@/lib/api-error";
 
 export default function ForgotPasswordPage() {
   const [apiError, setApiError] = useState<string | null>(null);
@@ -65,7 +39,12 @@ export default function ForgotPasswordPage() {
       setSuccessMessage(response.detail);
       setResetUrl(response.reset_url ?? null);
     } catch (error) {
-      setApiError(getErrorMessage(error));
+      setApiError(
+        getApiErrorMessage(
+          error,
+          "We could not process your password reset request. Please try again.",
+        ),
+      );
     } finally {
       setIsSubmitting(false);
     }

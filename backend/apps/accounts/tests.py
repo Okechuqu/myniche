@@ -8,7 +8,10 @@ from django.utils.http import urlsafe_base64_encode
 from rest_framework.test import APIRequestFactory, APITestCase
 
 from apps.accounts.serializers import ProfileUpdateSerializer, UserSerializer
-from apps.accounts.services.google_auth import GoogleAuthService
+from apps.accounts.services.google_auth import (
+    GoogleAuthService,
+    GoogleConsentRequired,
+)
 from apps.accounts.services.supabase_profile import SupabaseProfileService
 
 
@@ -245,6 +248,28 @@ class AuthTests(APITestCase):
         self.assertEqual(
             response.data["detail"],
             "Google ID token is required",
+        )
+
+    @patch("apps.accounts.views.GoogleAuthService.authenticate")
+    def test_google_login_returns_consent_required_code_for_new_user(
+        self,
+        authenticate,
+    ):
+        authenticate.side_effect = GoogleConsentRequired(
+            "Create an account and accept the privacy policy to continue"
+        )
+
+        response = self.client.post(
+            "/api/accounts/social/google/",
+            {"id_token": "new-google-user-token"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data["code"], "google_consent_required")
+        self.assertEqual(
+            response.data["detail"],
+            "Create your account first to continue with Google.",
         )
 
     @patch(

@@ -1,37 +1,11 @@
 "use client";
 
-import { isAxiosError } from "axios";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { updateProfile } from "@/services/api/auth.api";
 import { useAuthStore } from "@/store/auth.store";
-
-const getErrorMessage = (error: unknown) => {
-  if (isAxiosError(error) && error.response?.data) {
-    const data = error.response.data;
-
-    if (typeof data === "string") {
-      return data;
-    }
-
-    if (typeof data === "object" && data !== null) {
-      return Object.entries(data)
-        .map(([key, value]) =>
-          Array.isArray(value)
-            ? `${key}: ${value.join(", ")}`
-            : `${key}: ${String(value)}`,
-        )
-        .join(" \n");
-    }
-  }
-
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return "Unable to save onboarding details.";
-};
+import { getApiErrorMessage } from "@/lib/api-error";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -84,7 +58,12 @@ export default function OnboardingPage() {
       queryClient.invalidateQueries({ queryKey: ["analytics-summary"] });
       router.replace("/dashboard");
     } catch (submitError) {
-      setError(getErrorMessage(submitError));
+      setError(
+        getApiErrorMessage(
+          submitError,
+          "Unable to save onboarding details. Please try again.",
+        ),
+      );
     } finally {
       setIsSubmitting(false);
     }

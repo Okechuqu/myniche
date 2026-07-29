@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
 import { googleLogin } from "@/services/api/auth.api";
+import { getApiErrorCode } from "@/lib/api-error";
 
 type GoogleCredentialResponse = {
   credential?: string;
@@ -18,7 +19,6 @@ type GoogleButtonOptions = {
 };
 
 type GoogleWindow = Window & {
-  googleInitialized?: boolean;
   googleScriptLoading?: boolean;
   google?: {
     accounts?: {
@@ -101,6 +101,14 @@ export default function GoogleButton({
         });
         router.push("/");
       } catch (error: unknown) {
+        if (
+          !requirePrivacyAcceptance &&
+          getApiErrorCode(error) === "google_consent_required"
+        ) {
+          router.replace("/register?source=google");
+          return;
+        }
+
         if (isAxiosError(error) && error.response) {
           console.error("Server Error Details:", error.response.data);
         }
@@ -111,14 +119,10 @@ export default function GoogleButton({
     const initializeGoogle = () => {
       if (!win.google?.accounts?.id) return;
 
-      // Only initialize if not already done
-      if (!win.googleInitialized) {
-        win.google.accounts.id.initialize({
-          client_id: clientId,
-          callback: handleCredentialResponse,
-        });
-        win.googleInitialized = true;
-      }
+      win.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: handleCredentialResponse,
+      });
 
       setReady(true);
     };

@@ -1,6 +1,5 @@
 "use client";
 
-import { isAxiosError } from "axios";
 import Link from "next/link";
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -11,32 +10,7 @@ import {
   type PasswordResetConfirmInput,
 } from "@/lib/validations/auth";
 import { confirmPasswordReset } from "@/services/api/auth.api";
-
-const getErrorMessage = (error: unknown) => {
-  if (isAxiosError(error) && error.response?.data) {
-    const data = error.response.data;
-
-    if (typeof data === "string") {
-      return data;
-    }
-
-    if (typeof data === "object" && data !== null) {
-      return Object.entries(data)
-        .map(([key, value]) =>
-          Array.isArray(value)
-            ? `${key}: ${value.join(", ")}`
-            : `${key}: ${String(value)}`,
-        )
-        .join(" \n");
-    }
-  }
-
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return "Password reset failed";
-};
+import { getApiErrorMessage } from "@/lib/api-error";
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -81,7 +55,9 @@ function ResetPasswordForm() {
       setSuccessMessage(response.detail);
       reset();
     } catch (error) {
-      setApiError(getErrorMessage(error));
+      setApiError(
+        getApiErrorMessage(error, "Password reset failed. Please try again."),
+      );
     } finally {
       setIsSubmitting(false);
     }

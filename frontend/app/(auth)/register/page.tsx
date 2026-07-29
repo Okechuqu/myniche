@@ -1,40 +1,21 @@
 "use client";
 
-import { isAxiosError } from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRegister } from "@/features/auth/hooks/use-login";
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, CheckCircle2, Home, ShieldCheck } from "lucide-react";
+import { ArrowRight, Home, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import GoogleButton from "@/components/auth/google-button";
 import PrivacyCheckbox from "./PrivacyCheckbox";
 import TermsCheckbox from "./TermsCheckbox";
+import { getApiErrorMessage } from "@/lib/api-error";
 
 const getErrorMessage = (error: unknown) => {
   if (!error) return null;
-
-  if (isAxiosError(error) && error.response?.data) {
-    const data = error.response.data;
-
-    if (typeof data === "string") return data;
-
-    if (typeof data === "object" && data !== null) {
-      return Object.entries(data)
-        .map(([key, value]) =>
-          Array.isArray(value)
-            ? `${key}: ${value.join(", ")}`
-            : `${key}: ${String(value)}`,
-        )
-        .join(" \n");
-    }
-  }
-
-  if (error instanceof Error) return error.message;
-
-  return "Registration failed";
+  return getApiErrorMessage(error, "Registration failed. Please try again.");
 };
 
 export default function RegisterPage() {
@@ -42,7 +23,7 @@ export default function RegisterPage() {
   const [apiError, setApiError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const { mutate, isPending, error } = useRegister({
+  const { mutate, isPending } = useRegister({
     redirectOnSuccess: false,
     onSuccess: () => {
       setSuccessMessage("Account created successfully! Redirecting...");
@@ -50,12 +31,18 @@ export default function RegisterPage() {
         router.replace("/onboarding");
       }, 2000);
     },
+    onError: (error) => {
+      setApiError(getErrorMessage(error));
+      window.setTimeout(() => {
+        setApiError(null);
+      }, 5000);
+    },
   });
 
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     formState: { errors },
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
@@ -67,26 +54,13 @@ export default function RegisterPage() {
     },
   });
 
-  const passwordValue = watch("password", "");
-  const confirmPasswordValue = watch("confirmPassword", "");
+  const passwordValue = useWatch({ control, name: "password" }) ?? "";
+  const confirmPasswordValue =
+    useWatch({ control, name: "confirmPassword" }) ?? "";
   const passwordsMismatch =
     confirmPasswordValue.length > 0 && passwordValue !== confirmPasswordValue;
   const [privacyChecked, setPrivacyChecked] = useState(false);
   const [termsChecked, setTermsChecked] = useState(false);
-
-  useEffect(() => {
-    const errorMessage = getErrorMessage(error);
-    if (!errorMessage) {
-      return;
-    }
-
-    setApiError(errorMessage);
-    const timer = window.setTimeout(() => {
-      setApiError(null);
-    }, 5000);
-
-    return () => window.clearTimeout(timer);
-  }, [error]);
 
   const onSubmit = (values: RegisterInput) => {
     if (!privacyChecked) {

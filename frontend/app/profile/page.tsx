@@ -1,39 +1,13 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { isAxiosError } from "axios";
 import { useQueryClient } from "@tanstack/react-query";
 import { Save, UserRound } from "lucide-react";
 
 import DashboardLayout from "@/components/layout/dashboard-layout";
 import { updateProfile } from "@/services/api/auth.api";
 import { useAuthStore } from "@/store/auth.store";
-
-const getErrorMessage = (error: unknown) => {
-  if (isAxiosError(error) && error.response?.data) {
-    const data = error.response.data;
-
-    if (typeof data === "string") {
-      return data;
-    }
-
-    if (typeof data === "object" && data !== null) {
-      return Object.entries(data)
-        .map(([key, value]) =>
-          Array.isArray(value)
-            ? `${key}: ${value.join(", ")}`
-            : `${key}: ${String(value)}`,
-        )
-        .join(" \n");
-    }
-  }
-
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return "Profile update failed";
-};
+import { getApiErrorMessage } from "@/lib/api-error";
 
 export default function ProfilePage() {
   const user = useAuthStore((state) => state.user);
@@ -75,7 +49,12 @@ export default function ProfilePage() {
       queryClient.invalidateQueries({ queryKey: ["analytics-summary"] });
       setMessage("Profile updated successfully.");
     } catch (submitError) {
-      setError(getErrorMessage(submitError));
+      setError(
+        getApiErrorMessage(
+          submitError,
+          "Profile update failed. Please try again.",
+        ),
+      );
     } finally {
       setIsSubmitting(false);
     }
