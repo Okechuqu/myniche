@@ -94,7 +94,13 @@ async function fetchSiteConfiguration(): Promise<Metadata> {
       metadataBase: new URL(canonicalUrl),
       title,
       description,
-      icons: config.favicon_url ? { icon: config.favicon_url } : undefined,
+      icons: config.favicon_url
+        ? {
+            icon: [{ url: config.favicon_url }],
+            shortcut: [{ url: config.favicon_url }],
+            apple: [{ url: config.favicon_url }],
+          }
+        : fallbackMetadata.icons,
       alternates: {
         canonical: canonicalUrl,
       },

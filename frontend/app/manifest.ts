@@ -1,10 +1,59 @@
 import type { MetadataRoute } from "next";
 
-export default function manifest(): MetadataRoute.Manifest {
+const fallbackIcons: MetadataRoute.Manifest["icons"] = [
+  {
+    src: "/icons/reelsdraft-192.png",
+    sizes: "192x192",
+    type: "image/png",
+    purpose: "any",
+  },
+  {
+    src: "/icons/reelsdraft-512.png",
+    sizes: "512x512",
+    type: "image/png",
+    purpose: "any",
+  },
+  {
+    src: "/icons/reelsdraft-maskable-512.png",
+    sizes: "512x512",
+    type: "image/png",
+    purpose: "maskable",
+  },
+];
+
+async function fetchSiteConfiguration() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+
+  try {
+    const response = await fetch(`${apiUrl}/public/config/`, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return (await response.json()) as {
+      site_name?: string;
+      site_description?: string;
+      favicon_url?: string;
+    };
+  } catch {
+    return null;
+  }
+}
+
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const config = await fetchSiteConfiguration();
+  const icons: MetadataRoute.Manifest["icons"] = config?.favicon_url
+    ? [{ src: config.favicon_url, purpose: "any" }]
+    : fallbackIcons;
+
   return {
-    name: "ReelsDraft — AI Creator Workspace",
-    short_name: "ReelsDraft",
+    name: config?.site_name || "ReelsDraft — AI Creator Workspace",
+    short_name: config?.site_name || "ReelsDraft",
     description:
+      config?.site_description ||
       "Plan, write, and organize scroll-stopping content in one creator workspace.",
     start_url: "/",
     scope: "/",
@@ -13,25 +62,6 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: "#05070b",
     theme_color: "#05070b",
     categories: ["productivity", "business", "social"],
-    icons: [
-      {
-        src: "/icons/reelsdraft-192.png",
-        sizes: "192x192",
-        type: "image/png",
-        purpose: "any",
-      },
-      {
-        src: "/icons/reelsdraft-512.png",
-        sizes: "512x512",
-        type: "image/png",
-        purpose: "any",
-      },
-      {
-        src: "/icons/reelsdraft-maskable-512.png",
-        sizes: "512x512",
-        type: "image/png",
-        purpose: "maskable",
-      },
-    ],
+    icons,
   };
 }
