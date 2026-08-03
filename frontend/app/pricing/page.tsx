@@ -1,6 +1,14 @@
 import PublicNavbar from "@/components/layout/public-navbar";
 import Footer from "@/components/marketing/footer";
 import PricingCta from "@/components/pricing/pricing-cta";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata = pageMetadata({
+  title: "Pricing for AI Script Generation & Content Planning",
+  description:
+    "Start using ReelsDraft free to generate scripts, organize ideas, and plan short-form video content.",
+  path: "/pricing",
+});
 
 const plans = [
   {

@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils import timezone
@@ -9,6 +8,7 @@ from rest_framework import serializers
 
 from .models import User
 from .services.supabase_profile import SupabaseProfileService
+from .services.password_reset_email import send_password_reset_email
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -233,22 +233,10 @@ class PasswordResetRequestSerializer(serializers.Serializer):
             f"?uid={uid}&token={token}"
         )
 
-        send_mail(
-            "Reset your ReelsDraft password",
-            (
-                "Use this link to reset your ReelsDraft password:\n\n"
-                f"{reset_url}\n\n"
-                "If you did not request this, you can ignore this email.\n\n"
-                "This request was processed in accordance with our privacy policy. "
-                "If you have questions about data protection, contact "
-                f"{settings.PRIVACY_CONTACT_EMAIL}."
-            ),
-            settings.DEFAULT_FROM_EMAIL,
-            [user.email],
-            fail_silently=True,
-        )
+        if send_password_reset_email(user, reset_url, token):
+            return reset_url
 
-        return reset_url
+        return None
 
 
 class PasswordResetConfirmSerializer(serializers.Serializer):

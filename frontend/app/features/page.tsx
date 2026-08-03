@@ -1,13 +1,20 @@
 import PublicNavbar from "@/components/layout/public-navbar";
 import Footer from "@/components/marketing/footer";
 import {
-  Calendar,
   CalendarDays,
   Sparkles,
   Wrench,
   BarChart3,
   Users,
 } from "lucide-react";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata = pageMetadata({
+  title: "AI Script Generator & Content Planning Features",
+  description:
+    "Explore ReelsDraft's AI script generator, content planner, creator toolkit, calendar, analytics, and collaboration features.",
+  path: "/features",
+});
 
 const features = [
   {

@@ -2,6 +2,8 @@ from unittest.mock import patch
 
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
+from django.core import mail
+from django.core.cache import cache
 from django.test import override_settings
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
@@ -178,6 +180,53 @@ class AuthTests(APITestCase):
         self.assertIn("detail", response.data)
         self.assertIn("reset_url", response.data)
         self.assertIn("/reset-password?", response.data["reset_url"])
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        FRONTEND_URL="https://reelsdraft.example",
+        PASSWORD_RESET_COOLDOWN=300,
+        PASSWORD_RESET_TIMEOUT=3600,
+    )
+    def test_password_reset_sends_branded_multipart_email_once_per_cooldown(self):
+        cache.clear()
+        user_model = get_user_model()
+        user_model.objects.create_user(
+            email="email-reset@example.com",
+            username="email-reset",
+            password="old-password-123",
+        )
+
+        first_response = self.client.post(
+            "/api/accounts/password/reset/",
+            {"email": "email-reset@example.com"},
+            format="json",
+        )
+        second_response = self.client.post(
+            "/api/accounts/password/reset/",
+            {"email": "email-reset@example.com"},
+            format="json",
+        )
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(second_response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("https://reelsdraft.example/reset-password?", mail.outbox[0].body)
+        self.assertEqual(mail.outbox[0].alternatives[0].mimetype, "text/html")
+        self.assertIn("Resend-Idempotency-Key", mail.outbox[0].extra_headers)
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+    )
+    def test_password_reset_unknown_email_keeps_generic_response(self):
+        response = self.client.post(
+            "/api/accounts/password/reset/",
+            {"email": "unknown-reset@example.com"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("reset_url", response.data)
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_password_reset_confirm_sets_new_password(self):
         user_model = get_user_model()

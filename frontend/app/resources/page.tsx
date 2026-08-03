@@ -22,8 +22,8 @@ const resourceCards = [
       "Set your niche, content pillars, and first repeatable publishing rhythm.",
     category: "Foundation",
     duration: "12 min",
-    status: "Coming soon",
-    href: null,
+    status: "Read guide",
+    href: "/resources/short-form-video-script-guide",
     Icon: BookOpen,
   },
   {

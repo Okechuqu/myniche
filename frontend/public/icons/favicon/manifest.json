@@ -1,0 +1,21 @@
+{
+  "name": "ReelsDraft",
+  "short_name": "ReelsDraft",
+  "icons": [
+    {
+      "src": "/icons/favicon/icon0.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/favicon/icon1.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "theme_color": "#05070b",
+  "background_color": "#05070b",
+  "display": "standalone"
+}

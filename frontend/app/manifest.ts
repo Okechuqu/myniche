@@ -2,22 +2,16 @@ import type { MetadataRoute } from "next";
 
 const fallbackIcons: MetadataRoute.Manifest["icons"] = [
   {
-    src: "/icons/reelsdraft-192.png",
-    sizes: "192x192",
-    type: "image/png",
+    src: "/icons/favicon/icon0.svg",
+    sizes: "any",
+    type: "image/svg+xml",
     purpose: "any",
   },
   {
-    src: "/icons/reelsdraft-512.png",
-    sizes: "512x512",
+    src: "/icons/favicon/icon1.png",
+    sizes: "96x96",
     type: "image/png",
     purpose: "any",
-  },
-  {
-    src: "/icons/reelsdraft-maskable-512.png",
-    sizes: "512x512",
-    type: "image/png",
-    purpose: "maskable",
   },
 ];
 

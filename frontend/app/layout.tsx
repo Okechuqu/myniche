@@ -27,7 +27,8 @@ const fallbackMetadata: Metadata = {
     default: "ReelsDraft",
     template: "%s | ReelsDraft",
   },
-  description: "AI Creator Operating System",
+  description:
+    "Create short-form video scripts, organize content ideas, and plan campaigns for Instagram Reels, TikTok, and YouTube Shorts.",
   applicationName: "ReelsDraft",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
@@ -40,11 +41,12 @@ const fallbackMetadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/icons/reelsdraft-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/reelsdraft-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/icons/favicon/icon0.svg", type: "image/svg+xml" },
+      { url: "/icons/favicon/icon1.png", sizes: "96x96", type: "image/png" },
     ],
+    shortcut: [{ url: "/icons/favicon/favicon.ico" }],
     apple: [
-      { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/icons/favicon/apple-icon.png", sizes: "180x180", type: "image/png" },
     ],
   },
   robots: {
@@ -85,7 +87,7 @@ async function fetchSiteConfiguration(): Promise<Metadata> {
     const description =
       config.seo_description ||
       config.site_description ||
-      "AI Creator Operating System";
+      "AI script generator and content planner for short-form video creators.";
     const canonicalUrl = config.canonical_url || process.env.NEXT_PUBLIC_SITE_URL || FALLBACK_SITE_URL;
     const images = config.open_graph_image ? [config.open_graph_image] : undefined;
 

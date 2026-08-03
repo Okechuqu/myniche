@@ -5,6 +5,7 @@ import ResourcePreview from "@/components/marketing/resource-preview";
 import PricingPreview from "@/components/marketing/pricing-preview";
 import Footer from "@/components/marketing/footer";
 import type { SiteContent } from "@/services/api/public.api";
+import { absoluteUrl } from "@/lib/seo";
 
 interface HomePagePayload {
   hero?: {
@@ -51,7 +52,7 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
 const defaultHomePagePayload = {
   hero: {
-    title: "Create better content with less effort.",
+    title: "AI script generation and content planning in one workspace.",
     subtitle:
       "Generate scripts, organize ideas, plan campaigns, and stay consistent across every channel with a single creator workspace.",
     slides: [
@@ -223,8 +224,48 @@ export default async function HomePage() {
     (homePageContent?.payload as HomePagePayload | undefined) ??
     defaultHomePagePayload;
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${absoluteUrl("/")}#organization`,
+        name: "ReelsDraft",
+        url: absoluteUrl("/"),
+        logo: absoluteUrl("/icons/reelsdraft-512.png"),
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${absoluteUrl("/")}#website`,
+        name: "ReelsDraft",
+        url: absoluteUrl("/"),
+        publisher: { "@id": `${absoluteUrl("/")}#organization` },
+      },
+      {
+        "@type": "SoftwareApplication",
+        name: "ReelsDraft",
+        url: absoluteUrl("/"),
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Web",
+        description:
+          "An AI script generator and content planner for short-form video creators.",
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+        },
+      },
+    ],
+  };
+
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+        }}
+      />
       <PublicNavbar />
 
       <Hero

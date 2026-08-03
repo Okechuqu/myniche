@@ -1,10 +1,10 @@
-const CACHE_NAME = "reelsdraft-shell-v1";
+const CACHE_NAME = "reelsdraft-shell-v2";
 const OFFLINE_URL = "/offline";
 const APP_SHELL = [
   OFFLINE_URL,
   "/manifest.webmanifest",
-  "/icons/reelsdraft-192.png",
-  "/icons/reelsdraft-512.png",
+  "/icons/favicon/icon0.svg",
+  "/icons/favicon/icon1.png",
 ];
 
 self.addEventListener("install", (event) => {
