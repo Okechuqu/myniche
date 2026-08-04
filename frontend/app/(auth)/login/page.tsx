@@ -8,6 +8,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowRight,
   CalendarDays,
+  Eye,
+  EyeOff,
   Home,
   Sparkles,
 } from "lucide-react";
@@ -24,6 +26,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [apiError, setApiError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { mutate, isPending } = useLogin({
     onSuccess: () => {
@@ -184,14 +187,25 @@ export default function LoginPage() {
                     Forgot password?
                   </Link>
                 </div>
-                <input
-                  id="password"
-                  type="password"
-                  autoComplete="current-password"
-                  placeholder="Enter your password"
-                  className="theme-input w-full rounded-xl border px-4 py-3.5 outline-none transition focus:ring-3 focus:ring-[var(--accent-secondary-soft)]"
-                  {...register("password")}
-                />
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    placeholder="Enter your password"
+                    className="theme-input w-full rounded-xl border py-3.5 pl-4 pr-12 outline-none transition focus:ring-3 focus:ring-[var(--accent-secondary-soft)]"
+                    {...register("password")}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((visible) => !visible)}
+                    className="theme-muted absolute inset-y-0 right-0 flex w-12 items-center justify-center transition hover:text-[var(--foreground)]"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-pressed={showPassword}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="mt-1 text-xs text-red-400">
                     {errors.password.message}

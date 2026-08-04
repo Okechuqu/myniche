@@ -58,6 +58,36 @@ const defaultFooterSignals: FooterSignal[] = [
   { label: "Planner core", value: "Synced" },
 ];
 
+const requiredLegalLinks: FooterLink[] = [
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Terms of Service", href: "/terms" },
+];
+
+function withRequiredLegalLinks(groups: FooterGroup[]) {
+  const missingLinks = requiredLegalLinks.filter(
+    (legalLink) =>
+      !groups.some((group) =>
+        group.links.some((link) => link.href === legalLink.href),
+      ),
+  );
+
+  if (missingLinks.length === 0) return groups;
+
+  const companyGroupIndex = groups.findIndex(
+    (group) => group.title.toLowerCase() === "company",
+  );
+
+  if (companyGroupIndex === -1) {
+    return [...groups, { title: "Legal", links: missingLinks }];
+  }
+
+  return groups.map((group, index) =>
+    index === companyGroupIndex
+      ? { ...group, links: [...group.links, ...missingLinks] }
+      : group,
+  );
+}
+
 const signalIconMap = [Bot, RadioTower, Cpu];
 
 export default function Footer({
@@ -71,6 +101,7 @@ export default function Footer({
   const [siteConfig, setSiteConfig] = useState<SiteConfiguration | null>(null);
   const contactEmail = publicContactEmail(siteConfig?.contact_email);
   const contactPhone = publicContactPhone(siteConfig?.contact_phone);
+  const visibleFooterGroups = withRequiredLegalLinks(footerGroups);
 
   useEffect(() => {
     let mounted = true;
@@ -132,7 +163,7 @@ export default function Footer({
 
           <div className="grid content-between gap-6 p-5 sm:gap-8 sm:p-8">
             <div className="grid grid-cols-2 gap-4 sm:gap-8">
-              {footerGroups.map((group) => (
+              {visibleFooterGroups.map((group) => (
                 <div key={group.title}>
                   <p className="theme-muted bg-[var(--surface)] px-3 py-2 text-xs font-semibold uppercase">
                     {group.title}

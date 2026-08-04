@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useRegister } from "@/features/auth/hooks/use-login";
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, Home, ShieldCheck } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Home, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useForm, useWatch } from "react-hook-form";
 import GoogleButton from "@/components/auth/google-button";
@@ -22,6 +22,8 @@ export default function RegisterPage() {
   const router = useRouter();
   const [apiError, setApiError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { mutate, isPending } = useRegister({
     redirectOnSuccess: false,
@@ -230,14 +232,25 @@ export default function RegisterPage() {
                   >
                     Password
                   </label>
-                  <input
-                    id="register-password"
-                    type="password"
-                    autoComplete="new-password"
-                    placeholder="Create a password"
-                    className="theme-input w-full rounded-xl border px-4 py-3.5 outline-none transition focus:ring-3 focus:ring-[var(--accent-secondary-soft)]"
-                    {...register("password")}
-                  />
+                  <div className="relative">
+                    <input
+                      id="register-password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      placeholder="Create a password"
+                      className="theme-input w-full rounded-xl border py-3.5 pl-4 pr-12 outline-none transition focus:ring-3 focus:ring-[var(--accent-secondary-soft)]"
+                      {...register("password")}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((visible) => !visible)}
+                      className="theme-muted absolute inset-y-0 right-0 flex w-12 items-center justify-center transition hover:text-[var(--foreground)]"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-pressed={showPassword}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                   {errors.password && (
                     <p className="mt-1 text-xs text-red-400">
                       {errors.password.message}
@@ -253,14 +266,35 @@ export default function RegisterPage() {
                     >
                       Confirm password
                     </label>
-                    <input
-                      id="register-password-confirmation"
-                      type="password"
-                      autoComplete="new-password"
-                      placeholder="Repeat your password"
-                      className="theme-input w-full rounded-xl border px-4 py-3.5 outline-none transition focus:ring-3 focus:ring-[var(--accent-secondary-soft)]"
-                      {...register("confirmPassword")}
-                    />
+                    <div className="relative">
+                      <input
+                        id="register-password-confirmation"
+                        type={showConfirmPassword ? "text" : "password"}
+                        autoComplete="new-password"
+                        placeholder="Repeat your password"
+                        className="theme-input w-full rounded-xl border py-3.5 pl-4 pr-12 outline-none transition focus:ring-3 focus:ring-[var(--accent-secondary-soft)]"
+                        {...register("confirmPassword")}
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowConfirmPassword((visible) => !visible)
+                        }
+                        className="theme-muted absolute inset-y-0 right-0 flex w-12 items-center justify-center transition hover:text-[var(--foreground)]"
+                        aria-label={
+                          showConfirmPassword
+                            ? "Hide password confirmation"
+                            : "Show password confirmation"
+                        }
+                        aria-pressed={showConfirmPassword}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff size={18} />
+                        ) : (
+                          <Eye size={18} />
+                        )}
+                      </button>
+                    </div>
                     {errors.confirmPassword && (
                       <p className="mt-1 text-xs text-red-400">
                         {errors.confirmPassword.message}

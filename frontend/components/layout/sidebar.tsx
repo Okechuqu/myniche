@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -78,8 +79,15 @@ export default function Sidebar() {
           onClick={() => setMobileOpen(false)}
           className="group flex min-w-0 items-center gap-3"
         >
-          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-[#d4af37] via-[#3b82f6] to-[#05070b] text-white shadow-lg shadow-[#d4af37]/20 transition group-hover:scale-105">
-            <span className="text-lg font-semibold">R</span>
+          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl shadow-lg shadow-[#d4af37]/20 transition group-hover:scale-105">
+            <Image
+              src="/icons/favicon/icon1.png"
+              alt="ReelsDraft"
+              width={44}
+              height={44}
+              className="h-full w-full object-cover"
+              priority
+            />
           </span>
           <div
             className={[

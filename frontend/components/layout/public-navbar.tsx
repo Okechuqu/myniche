@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import {
@@ -214,14 +215,30 @@ export default function PublicNavbar() {
             style={{ backgroundColor: "var(--surface-strong)" }}
           >
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.35em] text-[var(--text-muted)]">
-                  Navigate
-                </p>
-                <p className="text-lg font-semibold text-[var(--foreground)]">
-                  ReelsDraft
-                </p>
-              </div>
+              <Link
+                href="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="group flex min-w-0 items-center gap-3"
+              >
+                <span className="inline-flex h-11 w-11 shrink-0 overflow-hidden rounded-2xl shadow-lg shadow-[#d4af37]/20 transition group-hover:scale-105">
+                  <Image
+                    src="/icons/favicon/icon1.png"
+                    alt="ReelsDraft"
+                    width={44}
+                    height={44}
+                    className="h-full w-full object-cover"
+                    priority
+                  />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-base font-semibold text-[var(--foreground)]">
+                    ReelsDraft
+                  </p>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    AI script growth hub
+                  </p>
+                </div>
+              </Link>
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(false)}

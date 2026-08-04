@@ -191,6 +191,7 @@ const defaultHomePagePayload = {
         links: [
           { label: "Resources", href: "/resources" },
           { label: "Privacy Policy", href: "/privacy" },
+          { label: "Terms of Service", href: "/terms" },
         ],
       },
     ],
