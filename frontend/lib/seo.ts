@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 const FALLBACK_SITE_URL = "https://reelsdraft.com";
-const SOCIAL_IMAGE_PATH = "/icons/favicon/icon1.png";
+const SOCIAL_IMAGE_PATH = "/icons/favicon/icon2.png";
 
 export const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL || FALLBACK_SITE_URL
@@ -33,7 +33,7 @@ export function pageMetadata({
       siteName: "ReelsDraft",
       title,
       description,
-      images: [{ url: socialImage, width: 96, height: 96, alt: "ReelsDraft" }],
+      images: [{ url: socialImage, width: 575, height: 501, alt: "ReelsDraft" }],
     },
     twitter: {
       card: "summary",
