@@ -20,6 +20,7 @@ const geistMono = Geist_Mono({
 });
 
 const FALLBACK_SITE_URL = "https://reelsdraft.com";
+const FALLBACK_SOCIAL_IMAGE = "/icons/reelsdraft-512.png";
 
 const fallbackMetadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || FALLBACK_SITE_URL),
@@ -52,6 +53,22 @@ const fallbackMetadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+  },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "ReelsDraft",
+    title: "ReelsDraft",
+    description:
+      "Create short-form video scripts, organize content ideas, and plan campaigns for Instagram Reels, TikTok, and YouTube Shorts.",
+    images: [{ url: FALLBACK_SOCIAL_IMAGE, width: 512, height: 512, alt: "ReelsDraft" }],
+  },
+  twitter: {
+    card: "summary",
+    title: "ReelsDraft",
+    description:
+      "Create short-form video scripts, organize content ideas, and plan campaigns for Instagram Reels, TikTok, and YouTube Shorts.",
+    images: [FALLBACK_SOCIAL_IMAGE],
   },
 };
 
@@ -89,7 +106,8 @@ async function fetchSiteConfiguration(): Promise<Metadata> {
       config.site_description ||
       "AI script generator and content planner for short-form video creators.";
     const canonicalUrl = config.canonical_url || process.env.NEXT_PUBLIC_SITE_URL || FALLBACK_SITE_URL;
-    const images = config.open_graph_image ? [config.open_graph_image] : undefined;
+    const socialImage =
+      config.open_graph_image || config.favicon_url || FALLBACK_SOCIAL_IMAGE;
 
     return {
       ...fallbackMetadata,
@@ -112,14 +130,14 @@ async function fetchSiteConfiguration(): Promise<Metadata> {
         siteName: config.site_name || "ReelsDraft",
         title,
         description,
-        images,
+        images: [{ url: socialImage, alt: config.site_name || "ReelsDraft" }],
       },
       twitter: {
-        card: "summary_large_image",
+        card: config.open_graph_image ? "summary_large_image" : "summary",
         site: config.twitter_site || undefined,
         title,
         description,
-        images,
+        images: [socialImage],
       },
     };
   } catch {
