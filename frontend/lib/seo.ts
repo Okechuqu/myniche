@@ -36,10 +36,10 @@ export function pageMetadata({
       images: [{ url: socialImage, width: 575, height: 501, alt: "ReelsDraft" }],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title,
       description,
-      images: [socialImage],
+      images: [{ url: socialImage, alt: "ReelsDraft" }],
     },
   };
 }

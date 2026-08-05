@@ -64,11 +64,11 @@ const fallbackMetadata: Metadata = {
     images: [{ url: FALLBACK_SOCIAL_IMAGE, width: 575, height: 501, alt: "ReelsDraft" }],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "ReelsDraft",
     description:
       "Create short-form video scripts, organize content ideas, and plan campaigns for Instagram Reels, TikTok, and YouTube Shorts.",
-    images: [FALLBACK_SOCIAL_IMAGE],
+    images: [{ url: FALLBACK_SOCIAL_IMAGE, alt: "ReelsDraft" }],
   },
 };
 
@@ -133,11 +133,11 @@ async function fetchSiteConfiguration(): Promise<Metadata> {
         images: [{ url: socialImage, alt: config.site_name || "ReelsDraft" }],
       },
       twitter: {
-        card: config.open_graph_image ? "summary_large_image" : "summary",
+        card: "summary_large_image",
         site: config.twitter_site || undefined,
         title,
         description,
-        images: [socialImage],
+        images: [{ url: socialImage, alt: config.site_name || "ReelsDraft" }],
       },
     };
   } catch {
