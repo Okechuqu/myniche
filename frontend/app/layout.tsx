@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 });
 
 const FALLBACK_SITE_URL = "https://reelsdraft.com";
-const FALLBACK_SOCIAL_IMAGE = "/icons/reelsdraft-512.png";
+const FALLBACK_SOCIAL_IMAGE = "/icons/favicon/icon1.png";
 
 const fallbackMetadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || FALLBACK_SITE_URL),
@@ -61,7 +61,7 @@ const fallbackMetadata: Metadata = {
     title: "ReelsDraft",
     description:
       "Create short-form video scripts, organize content ideas, and plan campaigns for Instagram Reels, TikTok, and YouTube Shorts.",
-    images: [{ url: FALLBACK_SOCIAL_IMAGE, width: 512, height: 512, alt: "ReelsDraft" }],
+    images: [{ url: FALLBACK_SOCIAL_IMAGE, width: 96, height: 96, alt: "ReelsDraft" }],
   },
   twitter: {
     card: "summary",
